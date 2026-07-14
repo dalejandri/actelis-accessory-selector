@@ -254,6 +254,137 @@ const Connector = () => (
 );
 
 // ═════════════════════════════════════════════════════════════════════════════
+//  PREDICTIVE SEARCH (type-ahead) — for when you already know the equipment
+// ═════════════════════════════════════════════════════════════════════════════
+const CAT_LABEL = Object.fromEntries((CATEGORIES || []).map(c => [c.key, c.label]));
+
+function highlightMatch(text, q) {
+  const t = q.trim();
+  if (!t) return text;
+  const i = text.toLowerCase().indexOf(t.toLowerCase());
+  if (i < 0) return text;
+  return (
+    <>
+      {text.slice(0, i)}
+      <mark style={{ background: C.amberBg, color: C.orange, padding: 0, fontWeight: 700 }}>
+        {text.slice(i, i + t.length)}
+      </mark>
+      {text.slice(i + t.length)}
+    </>
+  );
+}
+
+function QuickSearch({ onPick, current }) {
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const [hi, setHi] = useState(0);
+
+  const matches = useMemo(() => {
+    const t = q.trim().toLowerCase();
+    if (!t) return [];
+    const scored = [];
+    for (const d of DEVICES) {
+      const model = d.model.toLowerCase();
+      const pn = d.pn.toLowerCase();
+      const desc = (d.desc || "").toLowerCase();
+      let score = -1;
+      if (pn.startsWith(t) || model.startsWith(t)) score = 0;
+      else if (pn.includes(t) || model.includes(t)) score = 1;
+      else if (desc.includes(t)) score = 2;
+      if (score >= 0) scored.push({ d, score });
+    }
+    scored.sort((a, b) => a.score - b.score || a.d.model.localeCompare(b.d.model));
+    return scored.slice(0, 8).map(s => s.d);
+  }, [q]);
+
+  const choose = (d) => { onPick(d); setQ(""); setOpen(false); setHi(0); };
+
+  const onKey = (e) => {
+    if (!open || !matches.length) {
+      if (e.key === "ArrowDown" && matches.length) setOpen(true);
+      return;
+    }
+    if (e.key === "ArrowDown") { e.preventDefault(); setHi(h => Math.min(h + 1, matches.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setHi(h => Math.max(h - 1, 0)); }
+    else if (e.key === "Enter") { e.preventDefault(); choose(matches[hi]); }
+    else if (e.key === "Escape") { setOpen(false); }
+  };
+
+  return (
+    <div style={{ position: "relative", marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#fff",
+                    border: `1.5px solid ${open && matches.length ? C.navy : C.border}`, borderRadius: 10,
+                    padding: "11px 14px", boxShadow: "0 1px 3px rgba(11,29,58,0.05)",
+                    transition: "border-color 120ms" }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+          <circle cx="11" cy="11" r="7" stroke={C.muted} strokeWidth="2" />
+          <path d="M21 21l-4.3-4.3" stroke={C.muted} strokeWidth="2" strokeLinecap="round" />
+        </svg>
+        <input
+          value={q}
+          onChange={(e) => { setQ(e.target.value); setOpen(true); setHi(0); }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 120)}
+          onKeyDown={onKey}
+          placeholder="Know the model? Search by name or part number — e.g. ML624, GL5030X, GL9110C…"
+          style={{ flex: 1, border: "none", outline: "none", fontSize: 14.5, color: C.ink,
+                   fontFamily: font, background: "transparent" }}
+        />
+        {q && (
+          <button onMouseDown={(e) => { e.preventDefault(); setQ(""); setOpen(false); }}
+                  title="Clear"
+                  style={{ background: "none", border: "none", cursor: "pointer", color: C.faint,
+                           padding: 0, display: "inline-flex", flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {open && matches.length > 0 && (
+        <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 40,
+                      background: "#fff", border: `1px solid ${C.border}`, borderRadius: 10,
+                      boxShadow: "0 12px 30px rgba(11,29,58,0.16)", overflow: "hidden" }}>
+          {matches.map((d, idx) => (
+            <div key={d.pn}
+                 onMouseDown={(e) => { e.preventDefault(); choose(d); }}
+                 onMouseEnter={() => setHi(idx)}
+                 style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px",
+                          cursor: "pointer", background: idx === hi ? C.amberBg : "#fff",
+                          borderBottom: idx < matches.length - 1 ? `1px solid ${C.bg}` : "none" }}>
+              <span style={{ flexShrink: 0 }}><ProductImage item={d} size={34} /></span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>{highlightMatch(d.model, q)}</div>
+                <div style={{ fontSize: 12, color: C.muted, overflow: "hidden", textOverflow: "ellipsis",
+                              whiteSpace: "nowrap" }}>{d.desc}</div>
+              </div>
+              <div style={{ flexShrink: 0, textAlign: "right" }}>
+                <code style={{ fontSize: 12, color: C.navy2 }}>{highlightMatch(d.pn, q)}</code>
+                {CAT_LABEL[d.cat] && (
+                  <div style={{ fontSize: 10.5, color: C.faint, textTransform: "uppercase",
+                                letterSpacing: 0.3, marginTop: 2 }}>{CAT_LABEL[d.cat]}</div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {open && q.trim() && matches.length === 0 && (
+        <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 40,
+                      background: "#fff", border: `1px solid ${C.border}`, borderRadius: 10,
+                      boxShadow: "0 12px 30px rgba(11,29,58,0.16)", padding: "12px 14px",
+                      fontSize: 13.5, color: C.muted }}>
+          No device matches “{q.trim()}”. Try a family like ML600, GL5000 or GL9000 — or use{" "}
+          <span style={{ color: C.orange, fontWeight: 600 }}>Choose</span> to browse by category.
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 //  MAIN APP
 // ═════════════════════════════════════════════════════════════════════════════
 export default function App() {
@@ -347,6 +478,9 @@ export default function App() {
       </header>
 
       <main style={{ maxWidth: 1180, margin: "0 auto", padding: "28px 20px 60px" }}>
+        {/* Predictive search — jump straight to a device you already know */}
+        <QuickSearch onPick={pickDevice} current={device} />
+
         {/* Flow controls */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: C.ink }}>Configuration</span>
