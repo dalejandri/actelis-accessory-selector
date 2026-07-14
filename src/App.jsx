@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import {
-  DEVICES, CATEGORIES, buildSlots, defaultPlacement,
+  DEVICES, CATEGORIES, buildSlots, defaultPlacement, priceOf, fmtUsd, isVerified,
 } from "./catalog.js";
 import Icon from "./Icon.jsx";
 import { exportBomPdf, exportBomExcel, copyBom } from "./exports.js";
@@ -12,8 +12,11 @@ const C = {
   border: "#E2E8F0", bg: "#F8FAFC", amberBg: "#FFFBEB", green: "#10B981",
 };
 const LOGO = "https://actelis.com/wp-content/uploads/2021/10/a_logo-1.gif";
-const REGIONS = ["United States", "Canada", "United Kingdom", "European Union",
-  "Mexico", "Australia", "Other"];
+// The Access quote tool filters every PSU and cable list by QuoteRegion. This
+// build targets NA only, so the accessory data in ari.js is pre-filtered to NA
+// and the region is fixed rather than selectable — offering other regions would
+// imply a catalog we haven't loaded.
+const REGION = "North America (NA)";
 
 const font = "'Segoe UI', system-ui, -apple-system, sans-serif";
 
@@ -132,8 +135,14 @@ function AccessoryModal({ slot, current, onApply, onClose }) {
       if (n[pn]) delete n[pn]; else n[pn] = 1;
       return n;
     });
+  // The wizard caps SFP quantity at the unit's actual cage count; slot.maxQty
+  // carries that from AutoRepeaterInfo's "SFP Qty/Mode" column.
+  const cap = slot.maxQty || 999;
+  const used = Object.entries(multi).reduce((s, [, q]) => s + q, 0);
+  const over = slot.maxQty ? used > cap : false;
+
   const setQty = (pn, v) =>
-    setMulti(m => ({ ...m, [pn]: Math.max(1, Math.min(999, v | 0)) }));
+    setMulti(m => ({ ...m, [pn]: Math.max(1, Math.min(cap, v | 0)) }));
 
   const apply = () => {
     if (slot.multi) onApply(Object.entries(multi).map(([pn, qty]) => ({ pn, qty })));
@@ -172,7 +181,7 @@ function AccessoryModal({ slot, current, onApply, onClose }) {
               </div>
               <DatasheetLink href={o.datasheet} small />
               {slot.multi && on && (
-                <input type="number" min={1} value={multi[o.pn]}
+                <input type="number" min={1} max={cap} value={multi[o.pn]}
                        onClick={e => e.stopPropagation()}
                        onChange={e => setQty(o.pn, +e.target.value)}
                        style={{ width: 52, marginLeft: 10, padding: "5px 6px", border: `1px solid ${C.border}`,
@@ -184,9 +193,18 @@ function AccessoryModal({ slot, current, onApply, onClose }) {
       </div>
 
       <div style={{ padding: "12px 22px", borderTop: `1px solid ${C.border}`, display: "flex",
-                    justifyContent: "flex-end", gap: 10 }}>
-        <button onClick={onClose} style={btnGhost}>Cancel</button>
-        <button onClick={apply} style={btnPrimary}>Apply</button>
+                    justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+        <div style={{ fontSize: 12, color: over ? C.orange : C.muted }}>
+          {slot.maxQty
+            ? over
+              ? `${used} selected — this unit has only ${cap} port${cap > 1 ? "s" : ""}.`
+              : `${used} of ${cap} port${cap > 1 ? "s" : ""} used`
+            : ""}
+        </div>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={onClose} style={btnGhost}>Cancel</button>
+          <button onClick={apply} style={btnPrimary}>Apply</button>
+        </div>
       </div>
     </Overlay>
   );
@@ -391,7 +409,7 @@ export default function App() {
   const [device, setDevice] = useState(null);
   const [sel, setSel] = useState({});           // slotKey -> pn | [{pn,qty}]
   const [placement, setPlacement] = useState("indoor");
-  const [region, setRegion] = useState("United States");
+  const region = REGION;
   const [project, setProject] = useState("");
   const [modal, setModal] = useState(null);      // "device" | slotKey | null
   const [copied, setCopied] = useState(false);
@@ -415,28 +433,39 @@ export default function App() {
   // ── Build the Bill of Materials rows ──────────────────────────────────────
   const bom = useMemo(() => {
     if (!device) return [];
-    const rows = [{
-      name: `${device.model} — ${device.desc}`, pn: device.pn,
-      datasheet: device.datasheet, groupLabel: "Device", qty: 1,
-      slotKey: "device", icon: device.icon,
-    }];
+    const row = (o, groupLabel, qty, slotKey) => {
+      const unit = priceOf(o.pn);
+      return { name: `${o.model} — ${o.desc}`, pn: o.pn, datasheet: o.datasheet,
+               groupLabel, qty, slotKey, icon: o.icon,
+               unitPrice: unit, lineTotal: unit == null ? null : unit * qty };
+    };
+    const rows = [row(device, "Device", 1, "device")];
     for (const slot of slots) {
       const picked = sel[slot.key];
       if (!picked) continue;
       if (slot.multi) {
         for (const { pn, qty } of picked) {
           const o = slot.options.find(x => x.pn === pn);
-          if (o) rows.push({ name: `${o.model} — ${o.desc}`, pn: o.pn, datasheet: o.datasheet,
-                             groupLabel: slot.label, qty, slotKey: slot.key, icon: o.icon });
+          if (o) rows.push(row(o, slot.label, qty, slot.key));
         }
       } else {
         const o = slot.options.find(x => x.pn === picked);
-        if (o) rows.push({ name: `${o.model} — ${o.desc}`, pn: o.pn, datasheet: o.datasheet,
-                           groupLabel: slot.label, qty: 1, slotKey: slot.key, icon: o.icon });
+        if (o) rows.push(row(o, slot.label, 1, slot.key));
       }
     }
     return rows;
   }, [device, slots, sel]);
+
+  // Total covers priced lines only; unpriced lines are reported separately so
+  // the number is never quietly understated.
+  const totals = useMemo(() => {
+    let sum = 0, unpriced = 0;
+    for (const r of bom) {
+      if (r.lineTotal == null) unpriced++;
+      else sum += r.lineTotal;
+    }
+    return { sum, unpriced };
+  }, [bom]);
 
   const removeRow = (row) => {
     if (row.slotKey === "device") { reset(); return; }
@@ -558,6 +587,17 @@ export default function App() {
           </div>
         </div>
 
+        {/* Provenance banner: say plainly where this device's rules came from. */}
+        {device && !isVerified(device) && (
+          <div style={{ marginTop: 12, padding: "10px 14px", background: C.amberBg,
+                        border: `1px solid ${C.amber}`, borderRadius: 10, fontSize: 12.5,
+                        color: C.ink, lineHeight: 1.5 }}>
+            <strong>{device.model}</strong> isn’t in the Access quote tool’s data, so the options
+            below are inferred from the price list rather than taken from Actelis’ compatibility
+            rules. Verify power, optics and cabling before quoting.
+          </div>
+        )}
+
         {/* Empty state hint */}
         {!device && (
           <div style={{ textAlign: "center", color: C.muted, fontSize: 14, marginTop: 22 }}>
@@ -579,6 +619,8 @@ export default function App() {
                     <th style={{ padding: "8px 6px", fontWeight: 600 }}>Group</th>
                     <th style={{ padding: "8px 6px", fontWeight: 600, width: 60, textAlign: "center" }}>Qty</th>
                     <th style={{ padding: "8px 6px", fontWeight: 600, width: 110 }}>Part number</th>
+                    <th style={{ padding: "8px 6px", fontWeight: 600, width: 90, textAlign: "right" }}>List price</th>
+                    <th style={{ padding: "8px 6px", fontWeight: 600, width: 90, textAlign: "right" }}>Total</th>
                     <th style={{ padding: "8px 6px", width: 70 }}></th>
                   </tr>
                 </thead>
@@ -594,6 +636,14 @@ export default function App() {
                       <td style={{ padding: "10px 6px", color: C.muted }}>{r.groupLabel}</td>
                       <td style={{ padding: "10px 6px", textAlign: "center", color: C.ink }}>{r.qty}</td>
                       <td style={{ padding: "10px 6px" }}><code style={{ color: C.navy2 }}>{r.pn}</code></td>
+                      <td style={{ padding: "10px 6px", textAlign: "right",
+                                   color: r.unitPrice == null ? C.faint : C.ink }}>
+                        {fmtUsd(r.unitPrice)}
+                      </td>
+                      <td style={{ padding: "10px 6px", textAlign: "right", fontWeight: 600,
+                                   color: r.lineTotal == null ? C.faint : C.ink }}>
+                        {fmtUsd(r.lineTotal)}
+                      </td>
                       <td style={{ padding: "10px 6px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "flex-end" }}>
                           <DatasheetLink href={r.datasheet} small />
@@ -610,7 +660,30 @@ export default function App() {
                     </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  <tr style={{ borderTop: `2px solid ${C.border}` }}>
+                    <td colSpan={4} style={{ padding: "12px 6px", textAlign: "right",
+                                             fontWeight: 700, color: C.navy }}>
+                      Estimated list total
+                    </td>
+                    <td />
+                    <td style={{ padding: "12px 6px", textAlign: "right", fontWeight: 700,
+                                 fontSize: 15, color: C.navy }}>
+                      {fmtUsd(totals.sum)}
+                    </td>
+                    <td />
+                  </tr>
+                </tfoot>
               </table>
+            </div>
+
+            <div style={{ marginTop: 10, fontSize: 11.5, color: C.muted, lineHeight: 1.5 }}>
+              List prices in USD, excluding tax, freight and any regional adjustment — indicative only,
+              not a quotation.
+              {totals.unpriced > 0 && (
+                <> {totals.unpriced} line{totals.unpriced > 1 ? "s are" : " is"} not on the price
+                list and {totals.unpriced > 1 ? "are" : "is"} excluded from the total.</>
+              )}
             </div>
 
             {/* Export row */}
@@ -631,17 +704,15 @@ export default function App() {
         {device && (
           <div style={{ background: "#fff", border: `1px solid ${C.border}`, borderRadius: 14,
                         marginTop: 20, padding: "18px 24px", maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: C.ink, marginBottom: 4 }}>
-              Country or region where project will be installed
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.ink, marginBottom: 4 }}>Region</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 10px",
+                          border: `1px solid ${C.border}`, borderRadius: 8, background: C.bg }}>
+              <span style={{ fontSize: 14, color: C.ink, fontWeight: 600 }}>{REGION}</span>
             </div>
-            <div style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>
-              Some accessories (power cords, regulatory variants) differ by region.
+            <div style={{ fontSize: 11.5, color: C.muted, marginTop: 6 }}>
+              Power supplies and cables are filtered to the NA catalog. EMEA/APAC parts
+              are intentionally excluded.
             </div>
-            <select value={region} onChange={e => setRegion(e.target.value)}
-                    style={{ width: "100%", padding: "9px 10px", border: `1px solid ${C.border}`,
-                             borderRadius: 8, fontSize: 14, color: C.ink, fontFamily: font, background: "#fff" }}>
-              {REGIONS.map(r => <option key={r}>{r}</option>)}
-            </select>
             <div style={{ marginTop: 14 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: C.ink, marginBottom: 4 }}>Project label (optional)</div>
               <input value={project} onChange={e => setProject(e.target.value)}

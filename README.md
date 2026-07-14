@@ -70,3 +70,50 @@ actelis-accessory-selector/
 ├── package.json
 └── vite.config.js
 ```
+
+## Where the compatibility rules come from
+
+The engine is a port of the Access quote tool's **Wizard-Node** form. Every rule
+switches on a real column of the **AutoRepeaterInfo** table rather than on a
+hand-tagged guess:
+
+| Rule | Driven by |
+|---|---|
+| Which SFPs are offered | `SFP Info` speed class (100 / 1000 / 100-1000 / 2500-10GE / None) |
+| How many SFPs you can add | `SFP Qty/Mode` = the unit's cage count |
+| Which copper cable | `NumPairs` (0 → none; 8 → 8-pair; 16/32 → 16-pair; else small). ML600D uses its own `PTP-D Cable` |
+| Cable quantity | 32-pair units take 2 cables per unit |
+| Which PSU | `PN Type` + `Power Input` (0 built-in · 1 DC · 2 DIN non-PoE · 3 DIN PoE); ML600D PoE detected from the `-TP`/`-P-M`/`60V)` suffix |
+| Which craft cable | family + `OEM` (`DT` / `NewD` / plain D / ML600 / ML5xx) |
+| Mounting shown at all | suppressed for DIN-rail and `OEM = "NA"`; kit `NumPairs` is its slot count |
+
+### Region
+
+This build is **NA only**. `src/ari.js` is pre-filtered to the NA region,
+matching the Access tool's `QuoteRegion = "NA"`. EMEA/APAC parts (e.g. the
+`+ EU Cables` DIN PSU `506R61184`) are absent by design. To add another region,
+re-run the generator without the NA filter and restore the region selector.
+
+### Regenerating `src/ari.js`
+
+`src/ari.js` is **generated** — don't hand-edit it. Re-export `AutoRepeaterInfo`
+from Access to `.xlsx` and re-run `gen_ari.py` against it.
+
+### Verifying
+
+```bash
+node verify-rules.mjs
+```
+
+Asserts the engine still reproduces the wizard's behaviour (SFP classes, pair
+rules, PSU pools, craft cables, mounting). Run it after regenerating `ari.js` or
+touching the engine. A failure means the web tool and the Access tool would
+quote differently.
+
+### Coverage caveat
+
+23 of the 39 devices are backed by AutoRepeaterInfo. The newer G.hn lines —
+**GL800, GL900, GL9000** and `GL5010R-8J2F` — are **not in the Access data**, so
+their options fall back to inference from the price list. The UI flags those
+devices explicitly. As with the Access tool itself, software and specialised
+accessories (CWDM, external powering) still need to be configured manually.
