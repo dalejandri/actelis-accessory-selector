@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   DEVICES, CATEGORIES, buildSlots, defaultPlacement, priceOf, fmtUsd, isVerified,
 } from "./catalog.js";
@@ -38,13 +38,44 @@ function DatasheetLink({ href, small }) {
   );
 }
 
-// A product thumbnail: real photo if `image` is set, else the on-brand icon.
+// A product thumbnail.
+//
+// Photos are convention-based: drop a file into public/img/ and it appears — no
+// catalog edit needed. Two names are accepted, tried in order:
+//    public/img/501RG0046.png   (part number)
+//    public/img/ML624.png       (model)
+// so existing artwork named by model works without renaming. If neither loads
+// we fall back to the on-brand SVG silhouette, which means the tool always
+// looks finished and photos can be added a few at a time.
 function ProductImage({ item, size = 56 }) {
-  if (item?.image) {
-    return <img src={item.image} alt={item.model}
-                style={{ width: size, height: size, objectFit: "contain" }} />;
-  }
-  return <Icon name={item?.icon || "node"} size={size} />;
+  const [step, setStep] = useState(0);
+
+  const sources = useMemo(() => {
+    const base = import.meta.env.BASE_URL;
+    const list = [];
+    if (item?.image) list.push(item.image);
+    if (item?.pn) list.push(`${base}img/${item.pn}.png`);
+    if (item?.model && item.model !== item.pn) list.push(`${base}img/${item.model}.png`);
+    return list;
+  }, [item?.image, item?.pn, item?.model]);
+
+  // Restart the chain when the part changes, or a failure would stick.
+  useEffect(() => { setStep(0); }, [sources]);
+
+  if (step >= sources.length) return <Icon name={item?.icon || "node"} size={size} />;
+  // Photos sit on a white tile. Cards are white but the selected state is amber
+  // tinted, so without this a white-background photo would show as a hard box
+  // against the amber. The tile means transparent PNGs and plain white-backdrop
+  // photos both look right — background removal is optional, not required.
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center",
+                   width: size, height: size, background: "#fff", borderRadius: 6,
+                   overflow: "hidden" }}>
+      <img src={sources[step]} alt={item?.model || item?.pn || ""}
+           onError={() => setStep(s => s + 1)}
+           style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+    </span>
+  );
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
