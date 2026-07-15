@@ -51,7 +51,9 @@ function ProductImage({ item, size = 56 }) {
   const [step, setStep] = useState(0);
 
   const sources = useMemo(() => {
-    const base = import.meta.env.BASE_URL;
+    // Vite replaces import.meta.env at build time; guard it so the component
+    // also renders under plain Node (the SSR smoke test).
+    const base = (typeof import.meta !== "undefined" && import.meta.env?.BASE_URL) || "/";
     const list = [];
     if (item?.image) list.push(item.image);
     if (item?.pn) list.push(`${base}img/${item.pn}.png`);
@@ -240,6 +242,79 @@ function AccessoryModal({ slot, current, onApply, onClose }) {
     </Overlay>
   );
 }
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  DEVICE DETAIL — opened by clicking the device card. Shows the product photo
+//  large plus its key facts. Changing the device is deliberately NOT wired here;
+//  that's the "Change device" button's job, so clicking the picture never throws
+//  away a configuration you're part-way through.
+// ═════════════════════════════════════════════════════════════════════════════
+function DeviceDetail({ device, onClose, onChange }) {
+  if (!device) return null;
+  const price = priceOf(device.pn);
+  const verified = isVerified(device);
+  const cat = (CATEGORIES.find(c => c.key === device.cat) || {}).label;
+
+  return (
+    <Overlay onClose={onClose} width={620}>
+      <div style={{ padding: "18px 22px", borderBottom: `1px solid ${C.border}`,
+                    display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: 18, color: C.navy }}>{device.model}</div>
+          {cat && <div style={{ fontSize: 12, color: C.faint, textTransform: "uppercase",
+                                letterSpacing: 0.4, marginTop: 2 }}>{cat}</div>}
+        </div>
+        <button onClick={onClose} title="Close"
+                style={{ background: "none", border: "none", cursor: "pointer", color: C.muted,
+                         padding: 4, display: "inline-flex" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <div style={{ padding: 22, overflowY: "auto" }}>
+        <div style={{ background: "#fff", border: `1px solid ${C.border}`, borderRadius: 12,
+                      padding: 18, display: "flex", alignItems: "center", justifyContent: "center",
+                      marginBottom: 18 }}>
+          <ProductImage item={device} size={260} />
+        </div>
+
+        <div style={{ fontSize: 14.5, color: C.ink, lineHeight: 1.55, marginBottom: 16 }}>
+          {device.desc}
+        </div>
+
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
+          <tbody>
+            <Row k="Part number" v={<code style={{ color: C.navy2 }}>{device.pn}</code>} />
+            <Row k="List price" v={fmtUsd(price)} />
+            <Row k="Region" v={REGION} />
+            <Row k="Compatibility data"
+                 v={verified
+                   ? <span style={{ color: C.green, fontWeight: 600 }}>From the Access quote tool</span>
+                   : <span style={{ color: C.orange, fontWeight: 600 }}>Inferred — verify before quoting</span>} />
+          </tbody>
+        </table>
+      </div>
+
+      <div style={{ padding: "12px 22px", borderTop: `1px solid ${C.border}`, display: "flex",
+                    justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+        <DatasheetLink href={device.datasheet} />
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={onChange} style={btnGhost}>Change device</button>
+          <button onClick={onClose} style={btnPrimary}>Close</button>
+        </div>
+      </div>
+    </Overlay>
+  );
+}
+
+const Row = ({ k, v }) => (
+  <tr style={{ borderTop: `1px solid ${C.bg}` }}>
+    <td style={{ padding: "9px 0", color: C.muted, width: 160 }}>{k}</td>
+    <td style={{ padding: "9px 0", color: C.ink, fontWeight: 600 }}>{v}</td>
+  </tr>
+);
 
 // ═════════════════════════════════════════════════════════════════════════════
 //  SLOT CARD (a column in the flow)
@@ -558,11 +633,17 @@ export default function App() {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: C.faint, textTransform: "uppercase",
                             letterSpacing: 0.4, marginBottom: 8, height: 14 }}>Device</div>
-              <div onClick={() => setModal("device")}
+              {/* Clicking the card inspects the product. It only opens the
+                  picker when nothing is chosen yet, where the card IS the
+                  call to action. Once a device is set, swapping it is the
+                  button's job — an accidental click on the picture shouldn't
+                  discard a configuration in progress. */}
+              <div onClick={() => setModal(device ? "detail" : "device")}
+                   title={device ? `View ${device.model}` : "Select a device"}
                    style={{ width: 168, minHeight: 150, background: "#fff",
                             border: `1px solid ${device ? C.amber : C.navy}`, borderRadius: 12, padding: 14,
                             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                            gap: 6, cursor: "pointer",
+                            gap: 6, cursor: device ? "zoom-in" : "pointer",
                             boxShadow: device ? "0 4px 14px rgba(217,119,6,0.12)" : "0 2px 10px rgba(11,29,58,0.10)" }}>
                 <ProductImage item={device} size={58} />
                 <div style={{ fontWeight: 700, fontSize: 14, color: C.ink, textAlign: "center" }}>
@@ -757,6 +838,11 @@ export default function App() {
 
       {/* Modals */}
       {modal === "device" && <DeviceModal onPick={pickDevice} onClose={() => setModal(null)} />}
+      {modal === "detail" && (
+        <DeviceDetail device={device}
+                      onClose={() => setModal(null)}
+                      onChange={() => setModal("device")} />
+      )}
       {device && slots.map(slot => modal === slot.key && (
         <AccessoryModal key={slot.key} slot={slot} current={sel[slot.key]}
                         onApply={(v) => applySlot(slot.key, v)} onClose={() => setModal(null)} />
