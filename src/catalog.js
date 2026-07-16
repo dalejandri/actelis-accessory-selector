@@ -19,6 +19,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import { POOL, attrsOf } from "./ari.js";
+import { DEVICE_ROWS } from "./devices.js";
 
 // ─── Datasheet destinations (real, stable Actelis URLs) ──────────────────────
 const DS_PRODUCTS = "https://actelis.com/actelis-products/products-technology/";
@@ -107,65 +108,43 @@ export const PRICES = {
   "501RG3275": 1489,  // ML680D-M (12/24V)
   "501RG3375": 2019,  // ML680DL-M (12/24V)
   "501RG3378": 1410,  // ML680DLP-M
-  "510KG6241": 2013,  // ML624 Kit
-  "510KG6381": 2622,  // ML638 Kit
-  "501S20394": 3163,  // ML638 Rackmount kit
-  "510KG0065": 4825,  // ML6416E kit
-  "510KG0064": 3261,  // ML648E kit
   "506R00013E": 138,  // AC/DC power supply for GL800 (EU)
   "506R00013": 138,  // AC/DC power supply for GL800 (NA)
   "506R00006D": 110,  // AC-DC power supply for ML684D-M (NA)
-  "506R00008": 58,  // AC-DC power supply for GL900/old ML620i (501RG016x) (US/EU)
-  "506R00006E": 110,  // AC-DC power supply for ML600/ML740/ML530 (EU)
-  "506R00006": 110,  // AC-DC power supply for ML600/ML740/ML530 (NA)
-  "506R00010": 58,  // AC-DC power supply for new ML620i (501RG012x) (US/EU)
-  "506R61185": 184,  // DIN Rail 110-220VAC-24VDC PSU for ML600Dx/ML500Dx/GL5xxx + US Cables
-  "506R61181": 156,  // DIN Rail 110-220VAC-24VDC PSU for ML600Dx/ML500Dx/GL5xxx without PoE
-  "506R61191": 225,  // DIN Rail 110-220VAC-48VDC PSU for ML600Dx/ML500Dx/GL5xxx/GL7000 with PoE
-  "510K00060": 23,  // Accessories Kit for ML600/ML700/ML530
-  "506R32110": 2178,  // IP65 Enclosure for ML650S/SV, -48VDC Fiber & T1 Enclosure.
-  "502R05080": 195,  // ML600/ML740/ML530/GL800/GL900 Sleeve Extension Slide Kit Installation
-  "510R21070": 225,  // Rack Mount Sleeve Kit for two ML600/700/530/GL800 units
-  "510R21080": 52,  // Wall Mount Kit for ML530/ML600/ML700/GL800/GL900
-  "510R50955": 98,  // Wall Mount Kit for ML530/ML600/ML700/GL800/GL900, Flat faced
+  "506R00008": 58,  // AC-DC power supply for GL900/old ML620i (501
+  "506R00006E": 110,  // AC-DC power supply for ML600/ML740/ML530 (EU
+  "506R00006": 110,  // AC-DC power supply for ML600/ML740/ML530 (NA
+  "506R00010": 58,  // AC-DC power supply for new ML620i (501RG012x
+  "506R61185": 184,  // DIN Rail 110-220VAC-24VDC PSU for ML600Dx/ML
+  "506R61181": 156,  // DIN Rail 110-220VAC-24VDC PSU for ML600Dx/ML
+  "506R61191": 225,  // DIN Rail 110-220VAC-48VDC PSU for ML600Dx/ML
+  "506R32110": 2178,  // IP65 Enclosure for ML650S/SV, -48VDC Fiber &
+  "502R05080": 195,  // ML600/ML740/ML530/GL800/GL900 Sleeve Extensi
+  "510R21070": 225,  // Rack Mount Sleeve Kit for two ML600/700/530/
+  "510R21080": 52,  // Wall Mount Kit for ML530/ML600/ML700/GL800/G
+  "510R50955": 98,  // Wall Mount Kit for ML530/ML600/ML700/GL800/G
   "502R20230": 1127,  // Chassis 200 Shelf
   "502R02110": 2985,  // Chassis 2000B Shelf, 19 inch (CHS-2000B/19)
   "503R60042": 10345,  // Service Dispatcher Unit (SDU-450)
   "503R60043": 11495,  // Service Dispatcher Unit (SDU-450G)
   "503R60041": 12645,  // Service Dispatcher Unit (SDU-455G)
-  "503R20132": 6325,  // MLU-32DF (Front Access Multi-Line Unit with 32 copper pairs, DRB Enabled)
-  "503R20232": 6325,  // MLU-32DR (Rear Access Multi-Line Unit with 32 copper pairs, DRB Enabled)
-  "503R20164": 9195,  // MLU-64DF (Front Access Multi-Line Unit with 64 copper pairs, DRB Enabled)
-  "503R20264": 9195,  // MLU-64DR (Rear Access Multi-Line Unit with 64 copper pairs, DRB Enabled)
+  "503R20132": 6325,  // MLU-32DF (Front Access Multi-Line Unit with 
+  "503R20232": 6325,  // MLU-32DR (Rear Access Multi-Line Unit with 3
+  "503R20164": 9195,  // MLU-64DF (Front Access Multi-Line Unit with 
+  "503R20264": 9195,  // MLU-64DR (Rear Access Multi-Line Unit with 6
   "506R20230": 403,  // AC Power Feed Module (AC-PFM) for CHS-200
   "510K20230": 115,  // Accessories Kit for CHS-200
   "506R30060": 633,  // Fan Control Module for CHS-200 (FCM-200)
   "510R10955": 52,  // Wall Mount Kit for CHS-200, Flat faced
   "506R61311": 711,  // -48V / 600W Rectifier for ML2300
   "508R00680": 46,  // Blank Panel Kit (4 blank panels)
-  "506R30070": 685,  // Fan Control Module for CHS-2000B/19(FCM-2000B/19)
+  "506R30070": 685,  // Fan Control Module for CHS-2000B/19(FCM-2000
   "550A00047": 173,  // Flash Card for SDU-440/G
   "550A00046": 173,  // Flash Card for SDU-450/G
-  "502F60187A": 110,  // Metal 19” Shelf for rectifier installations for ML2300 rectifier
-  "504R60105": 89,  // Rectifier Cable 110/220V to open-ended for ML2300 rectifier
+  "502F60187A": 110,  // Metal 19” Shelf for rectifier installations 
+  "504R60105": 89,  // Rectifier Cable 110/220V to open-ended for M
   "503R20270": 2300,  // Streaker card for ML2300 and ML230
-  "510K20270": 2530,  // Streaker card with probe for ML2300 and ML230
-  "501S20442": 17797,  // ML230 Bundle: CHS-200/19" + SDU-450 + MLU-32DF
-  "501S20443": 17797,  // ML230 Bundle: CHS-200/19" + SDU-450 + MLU-32DR
-  "501S20441": 20666,  // ML230 Bundle: CHS-200/19" + SDU-450 + MLU-64DF
-  "501S20436": 20666,  // ML230 Bundle: CHS-200/19" + SDU-450 + MLU-64DR
-  "501S20445": 18947,  // ML230 Bundle: CHS-200/19" + SDU-450G + MLU-32DF
-  "501S20446": 18947,  // ML230 Bundle: CHS-200/19" + SDU-450G + MLU-32DR
-  "501S20444": 21816,  // ML230 Bundle: CHS-200/19" + SDU-450G + MLU-64DF
-  "501S20456": 21816,  // ML230 Bundle: CHS-200/19" + SDU-450G + MLU-64DR
-  "501S20448": 19654,  // ML2300 Bundle: CHS-2000B/19" + SDU-450 + MLU-32DF
-  "501S20449": 19654,  // ML2300 Bundle: CHS-2000B/19" + SDU-450 + MLU-32DR
-  "501S20447": 22523,  // ML2300 Bundle: CHS-2000B/19" + SDU-450 + MLU-64DF
-  "501S20435": 22523,  // ML2300 Bundle: CHS-2000B/19" + SDU-450 + MLU-64DR
-  "501S20451": 20804,  // ML2300 Bundle: CHS-2000B/19" + SDU-450G + MLU-32DF
-  "501S20452": 20804,  // ML2300 Bundle: CHS-2000B/19" + SDU-450G + MLU-32DR
-  "501S20450": 23673,  // ML2300 Bundle: CHS-2000B/19" + SDU-450G + MLU-64DF
-  "501S20455": 23673,  // ML2300 Bundle: CHS-2000B/19" + SDU-450G + MLU-64DR
+  "510K20270": 2530,  // Streaker card with probe for ML2300 and ML23
   "506R61254": 1185,  // GL5010-10J2F
   "506R61252": 1010,  // GL5010-8J2F
   "506R62107": 1190,  // GL5010-8J2F-P
@@ -202,7 +181,7 @@ export const PRICES = {
   "506R61284": 3330,  // GL6030-24J4F-P-AC
   "506R61280": 2630,  // GL6031-16J12FC-DC
   "506R61281": 2950,  // GL6031-16J12FC-AC
-  "506R61289": 3999,  // GL6040X-8J28F-DC (GL2140X-0828-DC - Old P/N 506R62100)
+  "506R61289": 3999,  // GL6040X-8J28F-DC (GL2140X-0828-DC - Old P/N 
   "506R61290": 4320,  // GL6040X-8J28F-AC
   "501RG0530": 920,  // ML530
   "501RG0252": 2295,  // ML540E
@@ -216,33 +195,6 @@ export const PRICES = {
   "506R61329": 3050,  // GL7010-6J4F-P
   "506R61330": 3328,  // GL7020-6J4F-P
   "506R61331": 3790,  // GL7030-6J4F-P
-  "501S20496": 1434,  // IP65 enclosure with 1 XR239SE repeater
-  "501S20502": 1515,  // IP65 enclosure with wall clip and 1 XR239SE repeater
-  "501S20494": 953,  // IP68 dome enclosure with 1 XR239SE repeater
-  "501S20495": 1772,  // IP68 dome enclosure with 2 XR239SE repeaters
-  "510K20099": 1435,  // Kit for PFU-8 Rev D to ML600
-  "510K14597": 1375,  // Kit for XR239SE- AD14 - XConnect - Customer side fed (MAEC Enclosure)
-  "501RG2099": 1333,  // PFU-8 Rev D
-  "510K14497": 1375,  // XR239SE Kit - Straight Rewiring (CO side fed)
-  "501RG2097": 1260,  // XR239SE Repeater - No Rewiring
-  "503RG3110": 805,  // ABA 3.0
-  "503RG3111": 851,  // ABA 3.0E
-  "503RG3088": 863,  // ABA LP ER 2.0
-  "503RG3104": 920,  // VBA 3.0
-  "503RG3107": 966,  // VBA 3.0E
-  "501S20475": 4283,  // Bundle E4-EH and 4x VBA 3.0E
-  "501S20484": 3105,  // Bundle E4-EL and 4x ABA 3.0
-  "501S20485": 3289,  // Bundle E4-EL and 4x ABA 3.0E
-  "501S20483": 3910,  // Bundle E4-EL and 4x VBA 3.0
-  "501S20482": 4030,  // Bundle E4-EL and 4x VBA 3.0E
-  "510K31220": 403,  // E2-EL - 2 Slot/4 port BBA Enclosure with Express power
-  "510K31037": 1288,  // Single slot StreamLine enclosure and ABA 2.0ER (SLE-AR)
-  "510K31032": 1231,  // Single slot StreamLine enclosure and ABA 3.0 (SLE-A)
-  "510K31033": 1277,  // Single slot StreamLine enclosure and ABA 3.0E (SLE-AE)
-  "510K31034": 1346,  // Single slot StreamLine enclosure and VBA 3.0 (SLE-V)
-  "510K31035": 1392,  // Single slot StreamLine enclosure and VBA 3.0E (SLE-VE)
-  "510K31036": 1507,  // Single slot StreamLine enclosure and VBA 3.0E with Express power cascaded (SLE-VE-C)
-  "503RG4080": 276,  // BBA Flash Tool
   "506R0116R": 1299,  // ML632R
   "506R0146R": 2297,  // ML634R
   "506R00022": 115,  // 100Base-FX MMF SFP module (2km)
@@ -260,16 +212,16 @@ export const PRICES = {
   "506R61235": 147,  // 10G BASE-LR SFP+ Module (10Km)
   "506R61241": 294.4,  // 10G BASE-LR SFP+ Module (40Km)
   "506R61242": 885,  // 10G BASE-LR SFP+ Module (70Km)
-  "506R61164": 87,  // BiDi MM SFP Transceiver for FE port, 2Km, TX=1310nm/RX=1550nm
-  "506R61165": 87,  // BiDi MM SFP Transceiver for FE port, 2Km, TX=1550nm/RX=1310nm
-  "506R61158": 87,  // BiDi SM SFP Transceiver for FE port, 20Km, TX=1310nm/RX=1550nm
-  "506R61159": 87,  // BiDi SM SFP Transceiver for FE port, 20Km, TX=1550nm/RX=1310nm
-  "506R61162": 87,  // BiDi SM SFP Transceiver for GE port, 3Km, TX=1310nm/RX=1550nm
-  "506R61163": 87,  // BiDi SM SFP Transceiver for GE port, 3Km, TX=1550nm/RX=1310nm
-  "506R61171": 87,  // BiDi SM CWDM SFP Transceiver for GE port, 20Km, TX=1310nm/RX=1490nm
-  "506R61172": 190,  // BiDi SM CWDM SFP Transceiver for GE port, 20Km, TX=1490nm/RX=1310nm
-  "506R61169": 225,  // BiDi SM CWDM SFP Transceiver for GE port, 40Km, TX=1310nm/RX=1490nm
-  "506R61170": 225,  // BiDi SM CWDM SFP Transceiver for GE port, 40Km, TX=1490nm/RX=1310nm
+  "506R61164": 87,  // BiDi MM SFP Transceiver for FE port, 2Km, TX
+  "506R61165": 87,  // BiDi MM SFP Transceiver for FE port, 2Km, TX
+  "506R61158": 87,  // BiDi SM SFP Transceiver for FE port, 20Km, T
+  "506R61159": 87,  // BiDi SM SFP Transceiver for FE port, 20Km, T
+  "506R61162": 87,  // BiDi SM SFP Transceiver for GE port, 3Km, TX
+  "506R61163": 87,  // BiDi SM SFP Transceiver for GE port, 3Km, TX
+  "506R61171": 87,  // BiDi SM CWDM SFP Transceiver for GE port, 20
+  "506R61172": 190,  // BiDi SM CWDM SFP Transceiver for GE port, 20
+  "506R61169": 225,  // BiDi SM CWDM SFP Transceiver for GE port, 40
+  "506R61170": 225,  // BiDi SM CWDM SFP Transceiver for GE port, 40
   "506R51711": 482,  // CSFP Transceiver 1610nm, GbE, 80km
   "506R61205": 482,  // CSFP Transceiver, 1470nm GbE, 80km
   "506R61206": 482,  // CSFP Transceiver, 1490nm GbE, 80km
@@ -279,53 +231,185 @@ export const PRICES = {
   "506R51713": 482,  // CSFP Transceiver, 1570nm GbE, 80km
   "506R61207": 482,  // CSFP Transceiver, 1590nm GbE, 80km
   "506R61151": 1605,  // T3/E3 over Ethernet SFP - 100Base-FX
-  "506R04820": 228,  // Newmar -48VDC Unity Fuse Panel
-  "506R04815": 363,  // Newmar -48VDC Unity rectifier
-  "502R04810": 326,  // Newmar -48VDC Unity rectifier shelf
-  "506R04830": 367,  // Newmar Battery Module
-  "502R04825": 245,  // Newmar Battery module shelf
-  "504R60060": 237,  // Copper Loop 64-pairs DIN Connector, US Color code,  25ft.
-  "504R60062": 657,  // Copper Loop 64-pairs DIN Connector, US Color code, 100ft.
-  "504R60063": 733,  // Copper Loop 64-pairs DIN Connector, US Color code, 150ft.
-  "504R60088": 449,  // Copper Loop 64-pairs FCI Connector, US Color code, 100ft.
-  "504R60101": 46,  // DSL dual port cable 2 X RJ45 to open end solid
-  "504R20160": 230,  // DSL Octal Cable, 8xRJ-45 to open end, solid wires, 100ft/30m
-  "504R20120": 69,  // DSL Octal Cable, 8xRJ-45 to open end, solid wires, 10ft/3m
-  "504R20180": 317,  // DSL Octal cable, 8xRJ-45 to open end, solid wires, 150ft/50m
-  "504R60100": 253,  // DSL Octal Dual Port Cable, 8xRJ-45, open end,US solid wire,100ft /30 meter
-  "504R60098": 92,  // DSL Octal Dual Port Cable, 8xRJ-45, open end,US solid wire,10ft /3 meter
-  "504R60150": 486,  // DSL Octal Dual Port Cable, 8xRJ-45, open end,US solid wire,150ft / 45 meter
-  "504R20140": 173,  // DSL Quad Cable, 4xRJ-45 to open end, solid wires, 100ft/30m
-  "504R20110": 46,  // DSL Quad Cable, 4xRJ-45 to open end, solid wires, 10ft/3m
+  "504R60060": 237,  // Copper Loop 64-pairs DIN Connector, US Color
+  "504R60062": 657,  // Copper Loop 64-pairs DIN Connector, US Color
+  "504R60063": 733,  // Copper Loop 64-pairs DIN Connector, US Color
+  "504R60088": 449,  // Copper Loop 64-pairs FCI Connector, US Color
+  "504R60101": 46,  // DSL dual port cable 2 X RJ45 to open end sol
+  "504R20160": 230,  // DSL Octal Cable, 8xRJ-45 to open end, solid 
+  "504R20120": 69,  // DSL Octal Cable, 8xRJ-45 to open end, solid 
+  "504R20180": 317,  // DSL Octal cable, 8xRJ-45 to open end, solid 
+  "504R60100": 253,  // DSL Octal Dual Port Cable, 8xRJ-45, open end
+  "504R60098": 92,  // DSL Octal Dual Port Cable, 8xRJ-45, open end
+  "504R60150": 486,  // DSL Octal Dual Port Cable, 8xRJ-45, open end
+  "504R20140": 173,  // DSL Quad Cable, 4xRJ-45 to open end, solid w
+  "504R20110": 46,  // DSL Quad Cable, 4xRJ-45 to open end, solid w
   "504R06012": 72,  // ML600-PFU MLP cable (8xRJ45->DB25) 0.3m
   "504R06017": 92,  // ML600-PFU MLP cable (8xRJ45->DB25) 3m
   "504R60099": 115,  // ML6x16-PFU MLP Cable (8xRJ45->2xDB25), 3m
-  "504R24014": 52,  // PFU-8 to MDF Cable (DB-25 to 8-pairs Open End),  25ft.
-  "504R24015": 80,  // PFU-8 to MDF Cable (DB-25 to 8-pairs Open End),  50ft.
-  "504R24016": 104,  // PFU-8 to MDF Cable (DB-25 to 8-pairs Open End), 100ft.
-  "504R24017": 115,  // PFU-8 to MDF Cable (DB-25 to 8-pairs Open End), 150ft.
-  "504R24001": 80,  // Y-Cable: Champ-64 Plug to 2 X Champ-50 connectors
-  "504R60064": 173,  // Y-Cable: DIN-128 Plug to 2 X Champ-64 connectors (11ft/3.3m)
-  "504R60074": 242,  // Y-Cable: DIN-128 Plug to 2 X Champ-64 connectors (25ft/7.6m)
-  "504R20060": 41,  // Alarm Cable, 50ft/15m solid wire 24AWG, DB-15 one end
+  "504R24014": 52,  // PFU-8 to MDF Cable (DB-25 to 8-pairs Open En
+  "504R24015": 80,  // PFU-8 to MDF Cable (DB-25 to 8-pairs Open En
+  "504R24016": 104,  // PFU-8 to MDF Cable (DB-25 to 8-pairs Open En
+  "504R24017": 115,  // PFU-8 to MDF Cable (DB-25 to 8-pairs Open En
+  "504R24001": 80,  // Y-Cable: Champ-64 Plug to 2 X Champ-50 conne
+  "504R60064": 173,  // Y-Cable: DIN-128 Plug to 2 X Champ-64 connec
+  "504R60074": 242,  // Y-Cable: DIN-128 Plug to 2 X Champ-64 connec
+  "504R20060": 41,  // Alarm Cable, 50ft/15m solid wire 24AWG, DB-1
   "504R06055": 76,  // Chassis-PFU MGMT cable (DB9/F->RJ45) 3m
-  "504R60120": 12,  // Console port cable, RJ45 to DB9 , (12ft/3.6m)
-  "504R20010": 12,  // Craft i/f cable, DB-9 con. both ends, (12ft/3.6m)
+  "504R60120": 12,  // Console port cable, RJ45 to DB9 , (12ft/3.6m
+  "504R20010": 12,  // Craft i/f cable, DB-9 con. both ends, (12ft/
   "504R60109": 23,  // Craft2 i/f cable, Mini-jack to DB9M, 1.5m
   "504R60102": 23,  // DB9 to RJ45 RS232 adapter / cable
   "182K11030": 69,  // Edge Connector for XR-239 Repeater
-  "504R60106": 23,  // Mgmt/Serial Server adapter, 15cm, RS232/V.24 DTE-DCE, RJ45-DB9F
-  "504R60108": 23,  // Mgmt/Serial Server adapter, 15cm, RS-232/V.24, DTE-DTE (null modem), RJ45-DB9M
+  "504R60106": 23,  // Mgmt/Serial Server adapter, 15cm, RS232/V.24
+  "504R60108": 23,  // Mgmt/Serial Server adapter, 15cm, RS-232/V.2
   "504R06065": 12,  // ML600 to PFU Alarm Cable 0.3m/1ft
   "504R06060": 20,  // ML600 to PFU MGMT Cable (RJ45-RJ45) 0.3m/1ft
-  "504R60052": 23,  // ML650S E1/T1-Clock splitter cable (0.5m/1.6ft)
+  "504R60052": 23,  // ML650S E1/T1-Clock splitter cable (0.5m/1.6f
   "504R60110": 23,  // PFU MGMT cable for ML680Dx models
-  "504R60107": 23,  // Serial Server cable 1.5m , RS-422/485, RJ45-DB9M
-  "504R60119": 23,  // Serial Server cable 1.5m for new D series, RS-422/485, RJ45-DB9F
+  "504R60107": 23,  // Serial Server cable 1.5m , RS-422/485, RJ45-
+  "504R60119": 23,  // Serial Server cable 1.5m for new D series, R
   "504R60094": 23,  // ML620i DC Power Cable; 2.5m
-  "504R20047": 41,  // PWR/GND Harness - 20ft/6m open ended, 48VDC 14AWG, Gnd 10AWG
-  "504R20043": 41,  // PWR/GND Harness - 20ft/6m open ended, 48VDC 18AWG, Gnd 14AWG
+  "504R20047": 41,  // PWR/GND Harness - 20ft/6m open ended, 48VDC 
+  "504R20043": 41,  // PWR/GND Harness - 20ft/6m open ended, 48VDC 
 };
+
+// Per-part datasheet PDFs, straight from the price list's link column.
+// A part with no entry falls back to its product-family page (see ds()).
+export const DATASHEET_URL = {
+  "501RG0140": "https://actelis.com/download/591/gigaline-gl8xx-gigabit-to-hard-to-reach-locations-fiber-g-fast-and-vdsl2/24841/gl800_-data-sheet-170221.pdf",
+  "501RG0144": "https://actelis.com/download/591/gigaline-gl8xx-gigabit-to-hard-to-reach-locations-fiber-g-fast-and-vdsl2/24841/gl800_-data-sheet-170221.pdf",
+  "501RG0139": "https://actelis.com/download/591/gigaline-gl8xx-gigabit-to-hard-to-reach-locations-fiber-g-fast-and-vdsl2/24841/gl800_-data-sheet-170221.pdf",
+  "501RG0143": "https://actelis.com/download/591/gigaline-gl8xx-gigabit-to-hard-to-reach-locations-fiber-g-fast-and-vdsl2/24841/gl800_-data-sheet-170221.pdf",
+  "501RG0134": "https://actelis.com/download/591/gigaline-gl8xx-gigabit-to-hard-to-reach-locations-fiber-g-fast-and-vdsl2/24841/gl800_-data-sheet-170221.pdf",
+  "501RG0135": "https://actelis.com/download/591/gigaline-gl8xx-gigabit-to-hard-to-reach-locations-fiber-g-fast-and-vdsl2/24841/gl800_-data-sheet-170221.pdf",
+  "506R61334": "https://actelis.com/wp-content/uploads/2025/10/GL910C-Data-Sheet.pdf",
+  "506R61342": "https://actelis.com/wp-content/uploads/2026/03/GL9104C-data-sheet.pdf",
+  "506R61335": "https://actelis.com/wp-content/uploads/2025/10/GL910C-Data-Sheet.pdf",
+  "506R61337": "https://actelis.com/wp-content/uploads/2026/03/GL93C-Data-sheet.pdf",
+  "506R61336": "https://actelis.com/wp-content/uploads/2025/11/GL93C-W-Data-Sheet.pdf",
+  "501RG0302": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "501RG0300": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "501RG0303": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "501RG0301": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "501RG0167": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "501RG0168": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "506R61245": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "501S61246": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "501S61247": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "501RG0157": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "501RG0158": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "510KG0310": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "510KG0309": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "510KG0308": "https://actelis.com/wp-content/uploads/2023/09/Actelis-GL900-In-Building-Fiber-Extension-Brochure_web.pdf",
+  "501RG0016": "https://actelis.com/download/630/access-devices-ml600xx/24958/ml620-data-sheet-its-022014_16_nl.pdf",
+  "501RG0121": "https://actelis.com/download/630/access-devices-ml600xx/24837/ml620i-_-inc-ml621i-_1_2_4-data-sheet-010116.pdf",
+  "501RG0046": "https://actelis.com/download/630/access-devices-ml600xx/24958/ml620-data-sheet-its-022014_16_nl.pdf",
+  "501RG0122": "https://actelis.com/download/630/access-devices-ml600xx/24837/ml620i-_-inc-ml621i-_1_2_4-data-sheet-010116.pdf",
+  "501RG0067": "https://actelis.com/download/630/access-devices-ml600xx/24960/ml630-data-sheet-0418.pdf",
+  "501RG0218": "https://actelis.com/download/630/access-devices-ml600xx/24249/ml640e-data-sheet-092915.pdf",
+  "501RG0216": "https://actelis.com/download/630/access-devices-ml600xx/24249/ml640e-data-sheet-092915.pdf",
+  "501RG0116": "https://actelis.com/download/630/access-devices-ml600xx/24249/ml640e-data-sheet-092915.pdf",
+  "501RG0217": "https://actelis.com/download/630/access-devices-ml600xx/24249/ml640e-data-sheet-092915.pdf",
+  "501RG0078": "https://actelis.com/wp-content/uploads/2025/09/ML650SV-Data-Sheet.pdf",
+  "501RG0076": "https://actelis.com/wp-content/uploads/2023/10/ML650S-Data-Sheet.pdf",
+  "501RG0077": "https://actelis.com/wp-content/uploads/2023/10/ML650S-Data-Sheet.pdf",
+  "501RG0477": "https://actelis.com/wp-content/uploads/2023/10/ML650S-Data-Sheet.pdf",
+  "501RG0106": "https://actelis.com/download/630/access-devices-ml600xx/24834/ml684m-data-sheet-its-updated-102020.pdf",
+  "501RG0238": "https://actelis.com/download/632/aggregation-units-ml690x/24828/ml690e_data-sheet-022718.pdf",
+  "501RG0115": "https://actelis.com/download/632/aggregation-units-ml690x/24968/ml690el_16-data-sheet-0520.pdf",
+  "501RG0111": "https://actelis.com/download/632/aggregation-units-ml690x/24966/ml690en_-data-sheet-0220.pdf",
+  "501RG0254": "https://actelis.com/download/632/aggregation-units-ml690x/24826/ml690es_8_16-data-sheet-031417.pdf",
+  "501RG0259": "https://actelis.com/download/632/aggregation-units-ml690x/24828/ml690e_data-sheet-022718.pdf",
+  "501RG0253": "https://actelis.com/download/632/aggregation-units-ml690x/24826/ml690es_8_16-data-sheet-031417.pdf",
+  "501RG0240": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/24977/ml62xd_ml622d_ml624d-data-sheet_032816.pdf",
+  "501RG3240": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/24977/ml62xd_ml622d_ml624d-data-sheet_032816.pdf",
+  "501RG0220": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/28071/ml68xdx_data-sheet-06302022.pdf",
+  "501RG3255": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/41978/ml600dx-m-high-density-industrial-iot-switch.pdf",
+  "501RG3355": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/41978/ml600dx-m-high-density-industrial-iot-switch.pdf",
+  "501RG0232": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/24254/ml684dt_ml684dtp-data-sheet.pdf",
+  "501RG0221": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/24252/ml680df-data-sheet-single-and-dual-power-_032816.pdf",
+  "501RG3231": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/24252/ml680df-data-sheet-single-and-dual-power-_032816.pdf",
+  "501RG0236": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/24253/ml680dftp_ml680dft-data-sheet.pdf",
+  "501RG3275": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/41978/ml600dx-m-high-density-industrial-iot-switch.pdf",
+  "501RG3375": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/41978/ml600dx-m-high-density-industrial-iot-switch.pdf",
+  "501RG3378": "https://actelis.com/download/322/metalight-ml600dx-industrial-din-rail-product-line/41978/ml600dx-m-high-density-industrial-iot-switch.pdf",
+  "502R20230": "https://actelis.com/download/633/aggregation-units-ml2300x-ml2400x-ml230/24964/ml230-data-sheet-0220.pdf",
+  "502R02110": "https://actelis.com/download/633/aggregation-units-ml2300x-ml2400x-ml230/24962/ml2300-data-sheet-022620.pdf",
+  "503R60042": "https://actelis.com/download/633/aggregation-units-ml2300x-ml2400x-ml230/24963/sdu-data-sheet-updated-031914_16_nl.pdf",
+  "503R60043": "https://actelis.com/download/633/aggregation-units-ml2300x-ml2400x-ml230/24963/sdu-data-sheet-updated-031914_16_nl.pdf",
+  "503R60041": "https://actelis.com/download/633/aggregation-units-ml2300x-ml2400x-ml230/24963/sdu-data-sheet-updated-031914_16_nl.pdf",
+  "503R20132": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "503R20232": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "503R20164": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "503R20264": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "506R20230": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "510K20230": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "506R30060": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "510R10955": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "506R61311": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "508R00680": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "506R30070": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "550A00047": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "550A00046": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "502F60187A": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "504R60105": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "503R20270": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "510K20270": "https://actelis.com/portfolio/ethernet-aggregation-switch-portfolio/",
+  "506R61254": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33639/gl5010-data-sheet.pdf",
+  "506R61252": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33639/gl5010-data-sheet.pdf",
+  "506R62107": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33639/gl5010-data-sheet.pdf",
+  "506R61253": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33639/gl5010-data-sheet.pdf",
+  "506R61255": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33629/gl5020-data-sheet.pdf",
+  "506R61256": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33629/gl5020-data-sheet.pdf",
+  "506R61257": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33625/gl5030x-data-sheet.pdf",
+  "506R61258": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33625/gl5030x-data-sheet.pdf",
+  "506R61261": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33625/gl5030x-data-sheet.pdf",
+  "506R61262": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33625/gl5030x-data-sheet.pdf",
+  "506R61309": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33628/gl5060x-data-sheet.pdf",
+  "506R61264": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33628/gl5060x-data-sheet.pdf",
+  "506R61265": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33628/gl5060x-data-sheet.pdf",
+  "506R61263": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33631/gl5070x-data-sheet.pdf",
+  "506R62108": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33623/gl5080xr-data-sheet.pdf",
+  "506R62011": "https://actelis.com/download/631/metalight-ml500dx-industrial-din-rail/25110/ml510d_ml5114d_ml5114dp-data-sheet-0421-2.pdf",
+  "506R62012": "https://actelis.com/download/631/metalight-ml500dx-industrial-din-rail/25110/ml510d_ml5114d_ml5114dp-data-sheet-0421-2.pdf",
+  "506R61296": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33639/gl5010-data-sheet.pdf",
+  "506R62106": "https://actelis.com/wp-content/uploads/2023/06/GL5020-Data-Sheet.pdf",
+  "506R61259": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33624/gl5030xr-data-sheet.pdf",
+  "506R61260": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33624/gl5030xr-data-sheet.pdf",
+  "506R61306": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33624/gl5030xr-data-sheet.pdf",
+  "506R61267": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33626/gl5060xr-data-sheet.pdf",
+  "506R61268": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33626/gl5060xr-data-sheet.pdf",
+  "506R61295": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33630/gl5070xr-data-sheet.pdf",
+  "506R61270": "https://actelis.com/download/684/gigaline-gl5xxx-industrial-fiber-switches-din-rail/33623/gl5080xr-data-sheet.pdf",
+  "506R61286": "https://actelis.com/download/683/gigaline-gl6xxx-industrial-fiber-switches-rack-mounted/33637/gl6010x-data-sheet.pdf",
+  "506R61287": "https://actelis.com/download/683/gigaline-gl6xxx-industrial-fiber-switches-rack-mounted/33637/gl6010x-data-sheet.pdf",
+  "506R61271": "https://actelis.com/download/683/gigaline-gl6xxx-industrial-fiber-switches-rack-mounted/33637/gl6010x-data-sheet.pdf",
+  "506R61272": "https://actelis.com/download/683/gigaline-gl6xxx-industrial-fiber-switches-rack-mounted/33637/gl6010x-data-sheet.pdf",
+  "506R61283": "https://actelis.com/wp-content/uploads/2023/06/GL6030-Data-Sheet.pdf",
+  "506R61284": "https://actelis.com/wp-content/uploads/2023/06/GL6030-Data-Sheet.pdf",
+  "506R61280": "https://actelis.com/wp-content/uploads/2023/06/GL6031-Data-Sheet.pdf",
+  "506R61281": "https://actelis.com/wp-content/uploads/2023/06/GL6031-Data-Sheet.pdf",
+  "506R61289": "https://actelis.com/wp-content/uploads/2023/06/GL6040X-Data-Sheet.pdf",
+  "506R61290": "https://actelis.com/wp-content/uploads/2023/06/GL6040X-Data-Sheet.pdf",
+  "501RG0530": "https://actelis.com/download/621/access-device-ml500xx/24975/ml530-data-sheet-updated-070715.pdf",
+  "501RG0252": "https://actelis.com/download/621/access-device-ml500xx/24230/ml540e-ds.pdf",
+  "506R62016": "https://actelis.com/download/621/access-device-ml500xx/24976/ml540m_ml560m_200102.pdf",
+  "506R62006": "https://actelis.com/download/621/access-device-ml500xx/24976/ml540m_ml560m_200102.pdf",
+  "506R61274": "https://actelis.com/wp-content/uploads/2023/06/GL6010XR-Data-Sheet.pdf",
+  "506R61275": "https://actelis.com/wp-content/uploads/2023/06/GL6010XR-Data-Sheet.pdf",
+  "506R61292": "https://actelis.com/wp-content/uploads/2023/06/GL6040XR-Data-Sheet.pdf",
+  "506R61293": "https://actelis.com/wp-content/uploads/2023/06/GL6040XR-Data-Sheet.pdf",
+  "506R61332": "https://actelis.com/wp-content/uploads/2025/09/GL7000-Data-Sheet.pdf",
+  "506R61329": "https://actelis.com/wp-content/uploads/2025/09/GL7000-Data-Sheet.pdf",
+  "506R61330": "https://actelis.com/wp-content/uploads/2025/09/GL7000-Data-Sheet.pdf",
+  "506R61331": "https://actelis.com/wp-content/uploads/2025/09/GL7000-Data-Sheet.pdf",
+  "506R0116R": "https://actelis.com/wp-content/uploads/2023/09/ML630R-Data-Sheet.pdf",
+  "506R0146R": "https://actelis.com/wp-content/uploads/2023/09/ML630R-Data-Sheet.pdf",
+};
+
+// The datasheet for a part: its own PDF if the price list names one.
+export const datasheetOf = (pn) => DATASHEET_URL[pn] || null;
 
 // List price for a part number, or null when not on the price list.
 export const priceOf = (pn) => (pn && PRICES[pn] != null ? PRICES[pn] : null);
@@ -425,11 +509,6 @@ export const PN_CATEGORY = {
   "501RG3275": "A2.1 ML600D Family",
   "501RG3375": "A2.1 ML600D Family",
   "501RG3378": "A2.1 ML600D Family",
-  "510KG6241": "A2.2 ML600 Configurations",
-  "510KG6381": "A2.2 ML600 Configurations",
-  "501S20394": "A2.2 ML600 Configurations",
-  "510KG0065": "A2.2 ML600 Configurations",
-  "510KG0064": "A2.2 ML600 Configurations",
   "506R00013E": "A3.1 Power Supplies for GL800/GL900/ML500/ML600/ML700",
   "506R00013": "A3.1 Power Supplies for GL800/GL900/ML500/ML600/ML700",
   "506R00006D": "A3.1 Power Supplies for GL800/GL900/ML500/ML600/ML700",
@@ -440,7 +519,6 @@ export const PN_CATEGORY = {
   "506R61185": "A3.1 Power Supplies for GL800/GL900/ML500/ML600/ML700",
   "506R61181": "A3.1 Power Supplies for GL800/GL900/ML500/ML600/ML700",
   "506R61191": "A3.1 Power Supplies for GL800/GL900/ML500/ML600/ML700",
-  "510K00060": "A3.2 GL800/GL900ML500/ML600/ML700 Related Items",
   "506R32110": "A3.2 GL800/GL900ML500/ML600/ML700 Related Items",
   "502R05080": "A3.2 GL800/GL900ML500/ML600/ML700 Related Items",
   "510R21070": "A3.2 GL800/GL900ML500/ML600/ML700 Related Items",
@@ -468,22 +546,6 @@ export const PN_CATEGORY = {
   "504R60105": "A4.5 CHS-2000 Related Items",
   "503R20270": "A4.5 CHS-2000 Related Items",
   "510K20270": "A4.5 CHS-2000 Related Items",
-  "501S20442": "A4.6 ML230 Configuration Examples",
-  "501S20443": "A4.6 ML230 Configuration Examples",
-  "501S20441": "A4.6 ML230 Configuration Examples",
-  "501S20436": "A4.6 ML230 Configuration Examples",
-  "501S20445": "A4.6 ML230 Configuration Examples",
-  "501S20446": "A4.6 ML230 Configuration Examples",
-  "501S20444": "A4.6 ML230 Configuration Examples",
-  "501S20456": "A4.6 ML230 Configuration Examples",
-  "501S20448": "A4.7 ML2300 Configuration Examples",
-  "501S20449": "A4.7 ML2300 Configuration Examples",
-  "501S20447": "A4.7 ML2300 Configuration Examples",
-  "501S20435": "A4.7 ML2300 Configuration Examples",
-  "501S20451": "A4.7 ML2300 Configuration Examples",
-  "501S20452": "A4.7 ML2300 Configuration Examples",
-  "501S20450": "A4.7 ML2300 Configuration Examples",
-  "501S20455": "A4.7 ML2300 Configuration Examples",
   "506R61254": "A5.1 Fiber DIN Rail L2 Switches",
   "506R61252": "A5.1 Fiber DIN Rail L2 Switches",
   "506R62107": "A5.1 Fiber DIN Rail L2 Switches",
@@ -534,33 +596,6 @@ export const PN_CATEGORY = {
   "506R61329": "A5.5 Fiber In-Pole L2 Switches",
   "506R61330": "A5.5 Fiber In-Pole L2 Switches",
   "506R61331": "A5.5 Fiber In-Pole L2 Switches",
-  "501S20496": "A6. Repeater Related Products",
-  "501S20502": "A6. Repeater Related Products",
-  "501S20494": "A6. Repeater Related Products",
-  "501S20495": "A6. Repeater Related Products",
-  "510K20099": "A6. Repeater Related Products",
-  "510K14597": "A6. Repeater Related Products",
-  "501RG2099": "A6. Repeater Related Products",
-  "510K14497": "A6. Repeater Related Products",
-  "501RG2097": "A6. Repeater Related Products",
-  "503RG3110": "A8.1 BBA Cards",
-  "503RG3111": "A8.1 BBA Cards",
-  "503RG3088": "A8.1 BBA Cards",
-  "503RG3104": "A8.1 BBA Cards",
-  "503RG3107": "A8.1 BBA Cards",
-  "501S20475": "A8.2 BBA Enclosures",
-  "501S20484": "A8.2 BBA Enclosures",
-  "501S20485": "A8.2 BBA Enclosures",
-  "501S20483": "A8.2 BBA Enclosures",
-  "501S20482": "A8.2 BBA Enclosures",
-  "510K31220": "A8.2 BBA Enclosures",
-  "510K31037": "A8.2 BBA Enclosures",
-  "510K31032": "A8.2 BBA Enclosures",
-  "510K31033": "A8.2 BBA Enclosures",
-  "510K31034": "A8.2 BBA Enclosures",
-  "510K31035": "A8.2 BBA Enclosures",
-  "510K31036": "A8.2 BBA Enclosures",
-  "503RG4080": "A8.3 BBA Accessories",
   "506R0116R": "A9. L3 CPEs",
   "506R0146R": "A9. L3 CPEs",
   "506R00022": "C1. SFP Transceivers",
@@ -597,11 +632,6 @@ export const PN_CATEGORY = {
   "506R51713": "C1. SFP Transceivers",
   "506R61207": "C1. SFP Transceivers",
   "506R61151": "C1. SFP Transceivers",
-  "506R04820": "C3. Power Supply",
-  "506R04815": "C3. Power Supply",
-  "502R04810": "C3. Power Supply",
-  "506R04830": "C3. Power Supply",
-  "502R04825": "C3. Power Supply",
   "504R60060": "C4.1 DSL Cables",
   "504R60062": "C4.1 DSL Cables",
   "504R60063": "C4.1 DSL Cables",
@@ -671,150 +701,16 @@ function deriveCategories() {
 //  iface: copper = bonded G.SHDSL pairs · coax = G.hn "J" ports ·
 //         fiber = has SFP uplink slots · poe = supplies PoE
 // ════════════════════════════════════════════════════════════════════════════
-export const DEVICES = [
-  // ── GL800 hybrid G.FAST/VDSL aggregation & remote units ──────────────────
-  //  "O" = PTMP aggregation (office) end · "R" = remote end
-  { pn:"501RG0140", model:"GL830-8O",   cat:"NODES", family:"GL800", form:"standalone",
-    icon:"node", desc:"8-pair hybrid PTMP aggregation unit, 4×HSL",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG0144", model:"GL830-8R",   cat:"NODES", family:"GL800", form:"standalone",
-    icon:"node", desc:"8-pair hybrid remote unit, 4×HSL",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG0139", model:"GL830-16O",  cat:"NODES", family:"GL800", form:"standalone",
-    icon:"node", desc:"16-pair hybrid PTMP aggregation unit, 4×HSL",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG0143", model:"GL830-16R",  cat:"NODES", family:"GL800", form:"standalone",
-    icon:"node", desc:"16-pair hybrid remote unit, 4×HSL",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG0134", model:"GL850L-16O", cat:"NODES", family:"GL800", form:"standalone",
-    icon:"node", desc:"16-pair PTMP aggregation unit, 8×HSL, MACsec-256",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG0135", model:"GL850L-16R", cat:"NODES", family:"GL800", form:"standalone",
-    icon:"node", desc:"16-pair hybrid remote unit, 8×HSL, MACsec-256",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-
-  // ── ML600 standalone hybrid-fiber nodes ──────────────────────────────────
-  { pn:"501RG0046", model:"ML624",   cat:"NODES", family:"ML600",  form:"standalone",
-    icon:"node",  desc:"4-pair EFM node, fiber uplink",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG0067", model:"ML638",   cat:"NODES", family:"ML600",  form:"standalone",
-    icon:"node",  desc:"8-pair EFM node, fiber uplink",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG0217", model:"ML648E",  cat:"NODES", family:"ML600",  form:"standalone",
-    icon:"node",  desc:"8-pair enhanced node",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG0218", model:"ML6416E", cat:"NODES", family:"ML600",  form:"standalone",
-    icon:"node",  desc:"16-pair enhanced node",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG0259", model:"ML698E",  cat:"NODES", family:"ML600",  form:"standalone",
-    icon:"node",  desc:"High-density aggregation node",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-
-  // ── ML600D DIN-rail hardened nodes ───────────────────────────────────────
-  { pn:"501RG3230", model:"ML684D",     cat:"NODES", family:"ML600D", form:"din",
-    icon:"din", desc:"4-pair DIN-rail hardened node",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG3255", model:"ML684D-M",   cat:"NODES", family:"ML600D", form:"din",
-    icon:"din", desc:"4-pair DIN node, 12/24V",
-    iface:{ copper:true, coax:false, fiber:true, poe:false } },
-  { pn:"501RG3358", model:"ML684DLP-M", cat:"NODES", family:"ML600DL", form:"din",
-    icon:"din", desc:"4-pair DIN node, PoE, MACsec",
-    iface:{ copper:true, coax:false, fiber:true, poe:true } },
-  { pn:"501RG3378", model:"ML680DLP-M", cat:"NODES", family:"ML600DL", form:"din",
-    icon:"din", desc:"DIN node, PoE, MACsec",
-    iface:{ copper:true, coax:false, fiber:true, poe:true } },
-
-  // ── GL5000 fiber DIN-rail L2/L3 switches ─────────────────────────────────
-  { pn:"506R61252", model:"GL5010-8J2F",     cat:"SWITCHES", family:"GL5000", form:"din",
-    icon:"din", desc:"8×G.hn + 2×SFP DIN switch (L2)",
-    iface:{ copper:false, coax:true, fiber:true, poe:false } },
-  { pn:"506R61258", model:"GL5030X-8J4F-P",  cat:"SWITCHES", family:"GL5000", form:"din",
-    icon:"din", desc:"8×G.hn + 4×SFP DIN switch, PoE (L2)",
-    iface:{ copper:false, coax:true, fiber:true, poe:true } },
-  { pn:"506R61265", model:"GL5060X-16J4F-P", cat:"SWITCHES", family:"GL5000", form:"din",
-    icon:"din", desc:"16×G.hn + 4×SFP DIN switch, PoE (L2)",
-    iface:{ copper:false, coax:true, fiber:true, poe:true } },
-  { pn:"506R61296", model:"GL5010R-8J2F",    cat:"SWITCHES", family:"GL5000", form:"din",
-    icon:"din", desc:"8×G.hn + 2×SFP DIN switch (L3)",
-    iface:{ copper:false, coax:true, fiber:true, poe:false } },
-
-  // ── GL6000 fiber rackmount L2/L3 switches ────────────────────────────────
-  { pn:"506R61287", model:"GL6010X-24J4F-AC",  cat:"SWITCHES", family:"GL6000", form:"rack",
-    icon:"rack", desc:"24×G.hn + 4×SFP rack switch, AC (L2)",
-    iface:{ copper:false, coax:true, fiber:true, poe:false, powerBuiltIn:"AC" } },
-  { pn:"506R61284", model:"GL6030-24J4F-P-AC", cat:"SWITCHES", family:"GL6000", form:"rack",
-    icon:"rack", desc:"24×G.hn + 4×SFP rack switch, PoE, AC (L2)",
-    iface:{ copper:false, coax:true, fiber:true, poe:true, powerBuiltIn:"AC" } },
-  { pn:"506R61290", model:"GL6040X-8J28F-AC",  cat:"SWITCHES", family:"GL6000", form:"rack",
-    icon:"rack", desc:"8×G.hn + 28×SFP aggregation switch, AC",
-    iface:{ copper:false, coax:true, fiber:true, poe:false, powerBuiltIn:"AC" } },
-
-  // ── GL7000 in-pole L2 switches (PoE) ─────────────────────────────────────
-  { pn:"506R61329", model:"GL7010-6J4F-P", cat:"SWITCHES", family:"GL7000", form:"inpole",
-    icon:"pole", desc:"6×G.hn + 4×SFP in-pole switch, PoE",
-    iface:{ copper:false, coax:true, fiber:true, poe:true } },
-  { pn:"506R61331", model:"GL7030-6J4F-P", cat:"SWITCHES", family:"GL7000", form:"inpole",
-    icon:"pole", desc:"6×G.hn + 4×SFP in-pole switch, PoE",
-    iface:{ copper:false, coax:true, fiber:true, poe:true } },
-
-  // ── ML500 rackmount fiber switches ───────────────────────────────────────
-  { pn:"501RG0530", model:"ML530",   cat:"SWITCHES", family:"ML500", form:"standalone",
-    icon:"node", desc:"Compact fiber L2 switch",
-    iface:{ copper:false, coax:false, fiber:true, poe:false } },
-  { pn:"506R62012", model:"ML5114DP",cat:"SWITCHES", family:"GL5000", form:"din",
-    icon:"din",  desc:"DIN fiber switch, PoE",
-    iface:{ copper:false, coax:false, fiber:true, poe:true } },
-
-  // ── GL900 headend (copper aggregation for GL91 CPEs) ─────────────────────
-  { pn:"501RG0167", model:"GL904", cat:"HEADEND", family:"GL900HE", form:"standalone",
-    icon:"node", desc:"4-line copper headend, fiber uplink",
-    iface:{ copper:true, coax:false, fiber:true, poe:false }, pairsWith:"GL900CPE" },
-  { pn:"501RG0302", model:"GL916", cat:"HEADEND", family:"GL900HE", form:"standalone",
-    icon:"node", desc:"16-line copper headend, fiber uplink",
-    iface:{ copper:true, coax:false, fiber:true, poe:false }, pairsWith:"GL900CPE" },
-  { pn:"501RG0303", model:"GL908", cat:"HEADEND", family:"GL900HE", form:"standalone",
-    icon:"node", desc:"8-line copper headend, fiber uplink",
-    iface:{ copper:true, coax:false, fiber:true, poe:false }, pairsWith:"GL900CPE" },
-
-  // ── GL9000 headend (coax G.hn) ───────────────────────────────────────────
-  { pn:"506R61334", model:"GL9110C", cat:"HEADEND", family:"GL9000HE", form:"rack",
-    icon:"rack", desc:"Coax G.hn headend, fiber uplink",
-    iface:{ copper:false, coax:true, fiber:true, poe:false }, pairsWith:"GL9000CPE" },
-  { pn:"506R61342", model:"GL9104C", cat:"HEADEND", family:"GL9000HE", form:"rack",
-    icon:"rack", desc:"Coax G.hn headend, fiber uplink",
-    iface:{ copper:false, coax:true, fiber:true, poe:false }, pairsWith:"GL9000CPE" },
-
-  // ── CPEs ─────────────────────────────────────────────────────────────────
-  { pn:"506R61245", model:"GL91",     cat:"CPE", family:"GL900CPE", form:"cpe",
-    icon:"cpe", desc:"Single-port copper CPE",
-    iface:{ copper:true, coax:false, fiber:false, poe:false }, pairsWith:"GL900HE" },
-  { pn:"501S61246", model:"GL91T",    cat:"CPE", family:"GL900CPE", form:"cpe",
-    icon:"cpe", desc:"Copper CPE with PoE-out",
-    iface:{ copper:true, coax:false, fiber:false, poe:true }, pairsWith:"GL900HE" },
-  { pn:"506R61337", model:"GL93C",    cat:"CPE", family:"GL9000CPE", form:"cpe",
-    icon:"cpe", desc:"Coax G.hn CPE",
-    iface:{ copper:false, coax:true, fiber:false, poe:false }, pairsWith:"GL9000HE" },
-  { pn:"506R61336", model:"GL93C-W",  cat:"CPE", family:"GL9000CPE", form:"cpe",
-    icon:"cpe", desc:"Coax G.hn CPE, wall-plate",
-    iface:{ copper:false, coax:true, fiber:false, poe:false }, pairsWith:"GL9000HE" },
-
-  // ── Chassis & cards ──────────────────────────────────────────────────────
-  { pn:"502R20230", model:"CHS-200",   cat:"CHASSIS", family:"CHASSIS", form:"chassis",
-    icon:"chassis", desc:"200-series shelf",
-    iface:{ copper:false, coax:false, fiber:false, poe:false } },
-  { pn:"502R02110", model:"CHS-2000B", cat:"CHASSIS", family:"CHASSIS", form:"chassis",
-    icon:"chassis", desc:'19" 2000-series shelf',
-    iface:{ copper:false, coax:false, fiber:false, poe:false } },
-  { pn:"503R60042", model:"SDU-450",   cat:"CHASSIS", family:"CHASSIS", form:"chassis",
-    icon:"card", desc:"Service Dispatcher Unit",
-    iface:{ copper:false, coax:false, fiber:true, poe:false } },
-  { pn:"503R20132", model:"MLU-32DF",  cat:"CHASSIS", family:"CHASSIS", form:"chassis",
-    icon:"card", desc:"32-pair Multiport Line Unit",
-    iface:{ copper:true, coax:false, fiber:false, poe:false } },
-// `cat` is assigned from the price list via CATEGORY_FILTER rather than being
-// hand-tagged, so the tabs and the price list can never drift apart. Any legacy
-// cat: literal above is ignored.
-].map(d => ({ ...d, cat: filterOf(d.pn), datasheet: d.datasheet || ds(d.family), isDevice:true }));
+// The device list is GENERATED from the price list (see devices.js and
+// gen_devices.py). Price, datasheet and filter tab are attached here so those
+// three concerns stay in one place; a part with no datasheet PDF on the price
+// list falls back to its product-family page.
+export const DEVICES = DEVICE_ROWS.map(d => ({
+  ...d,
+  cat: filterOf(d.pn),
+  datasheet: datasheetOf(d.pn) || ds(d.family),
+  isDevice: true,
+}));
 
 export const CATEGORIES = deriveCategories();
 
@@ -822,7 +718,8 @@ export const CATEGORIES = deriveCategories();
 //  ACCESSORIES  (grouped pools the engine draws from)
 // ════════════════════════════════════════════════════════════════════════════
 const A = (pn, model, desc, group, icon, family="ACCESSORY", extra={}) =>
-  ({ pn, model, desc, group, icon, family, datasheet: ds(family), ...extra });
+  ({ pn, model, desc, group, icon, family,
+     datasheet: datasheetOf(pn) || ds(family), ...extra });
 
 export const POWER = {
   ML600: [
@@ -847,7 +744,9 @@ export const MOUNTS = {
   standalone: [
     A("510R21080", "Wall Mount Kit",   "Wall mount for ML600/ML700/GL800/GL900", "mount", "mount"),
     A("510R21070", "Rack Sleeve Kit",  "Rack-mount sleeve (holds 2 units)",      "mount", "mount"),
-    A("510K00060", "Accessories Kit",  "Accessories kit for ML600/ML700/ML530",  "mount", "kit"),
+    // 510K00060 "Accessories Kit" was removed here when it was dropped from the
+    // price list — it has no price and no replacement in A3.2, so it can't be
+    // quoted. Re-add it if it returns to the list.
   ],
   din: [
     A("510R21080", "Wall Mount Kit",   "Optional wall mount (DIN clip integrated)", "mount", "mount"),
@@ -1002,7 +901,10 @@ function dcCableFor(a, device) {
   }
   if (a.type === "PTP ML620i CPE" || a.type === "PTP ML620i Bundle") return [];
   if (device.form === "chassis") {
-    const big = device.model === "CHS-2000" || device.model === "CHS-2000B";
+    // The wizard picks the shelf's DC cable by testing the description for
+    // "Chassis 2000" (ML2300) versus the 100/200 shelves (ML230). Match on the
+    // model number rather than an exact string so a renamed SKU still resolves.
+    const big = /2000/.test(device.model || "");
     return POOL[big ? "ML2300 DC Cable" : "ML130/230 DC Cable"] || [];
   }
   return POOL["ML600 DC Cable"] || [];
@@ -1021,10 +923,11 @@ function mountsFor(a, device) {
   return POOL["ML600 Mounting"] || [];
 }
 
-// Map an AutoRepeaterInfo pool row into the option shape the UI renders.
+// Map an AutoRepeaterInfo pool row into the option shape the UI renders. The
+// datasheet is the part's own PDF from the price list where one exists.
 const opt = (o, group, icon) => ({
   pn: o.pn, model: o.pn, desc: o.desc || "",
-  group, icon, datasheet: DS_PRODUCTS,
+  group, icon, datasheet: datasheetOf(o.pn) || DS_PRODUCTS,
 });
 
 export function buildSlots(device) {
