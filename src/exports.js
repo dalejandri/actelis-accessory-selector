@@ -44,7 +44,7 @@ async function logoPng() {
 }
 
 // ─── PDF ─────────────────────────────────────────────────────────────────────
-export async function exportBomPdf({ device, rows, placement, region, projectLabel }) {
+export async function exportBomPdf({ device, rows, region, projectLabel }) {
   const doc = new jsPDF({ unit: "mm", format: "letter" });
   const W = doc.internal.pageSize.getWidth();
   let y = 14;
@@ -72,7 +72,6 @@ export async function exportBomPdf({ device, rows, placement, region, projectLab
   doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(60, 60, 60);
   doc.text(`Device:  ${device?.model || "—"}   (${device?.desc || ""})`, 12, y); y += 5;
   const meta = [];
-  if (placement) meta.push(`Placement: ${placement[0].toUpperCase() + placement.slice(1)}`);
   if (region) meta.push(`Region: ${region}`);
   if (projectLabel) meta.push(`Project: ${projectLabel}`);
   if (meta.length) { doc.text(meta.join("     "), 12, y); y += 5; }
@@ -126,7 +125,7 @@ export async function exportBomPdf({ device, rows, placement, region, projectLab
 }
 
 // ─── Excel (SheetJS lazy-loaded from CDN, same as the price tool) ────────────
-export async function exportBomExcel({ device, rows, placement, region, projectLabel }) {
+export async function exportBomExcel({ device, rows, region, projectLabel }) {
   if (!window.XLSX) {
     await new Promise((res, rej) => {
       const s = document.createElement("script");
@@ -141,7 +140,7 @@ export async function exportBomExcel({ device, rows, placement, region, projectL
   const aoa = [
     ["Actelis Networks, Inc. — Bill of Materials"],
     [`Device`, device?.model || "", device?.desc || ""],
-    [`Placement`, placement || "", `Region`, region || ""],
+    [`Region`, region || ""],
     projectLabel ? ["Project", projectLabel] : [],
     [],
     ["#", "Name", "Group", "Qty", "Part number", "List price (USD)", "Total (USD)", "Datasheet"],

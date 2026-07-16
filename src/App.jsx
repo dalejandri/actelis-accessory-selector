@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
-  DEVICES, CATEGORIES, buildSlots, defaultPlacement, priceOf, fmtUsd, isVerified,
+  DEVICES, CATEGORIES, buildSlots, priceOf, fmtUsd, isVerified,
 } from "./catalog.js";
 import Icon from "./Icon.jsx";
 import { exportBomPdf, exportBomExcel, copyBom } from "./exports.js";
@@ -80,6 +80,13 @@ function ProductImage({ item, size = 56 }) {
   );
 }
 
+// A small count badge on a filter tab — with a dozen tabs it's useful to see
+// how many devices are behind each before clicking.
+const Count = ({ n, on }) => (
+  <span style={{ marginLeft: 5, fontSize: 11, fontWeight: 700,
+                 color: on ? "rgba(255,255,255,0.75)" : C.faint }}>{n}</span>
+);
+
 // ═════════════════════════════════════════════════════════════════════════════
 //  DEVICE SELECTION MODAL
 // ═════════════════════════════════════════════════════════════════════════════
@@ -116,13 +123,21 @@ function DeviceModal({ onPick, onClose }) {
                           borderBottom: `2px solid ${C.navy}`, fontSize: 15, outline: "none",
                           fontFamily: font, color: C.ink, background: "transparent" }} />
         </div>
+        {/* Tabs come from CATEGORY_FILTER. Labels render as written in the
+            mapping rather than upper-cased: there are a dozen of them now and
+            names like "Fiber Rackmount L2 Switches" get unreadably wide in caps. */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
-          <Tab active={tab === "ALL"} onClick={() => setTab("ALL")}>ALL</Tab>
-          {CATEGORIES.map(cat => (
-            <Tab key={cat.key} active={tab === cat.key} onClick={() => setTab(cat.key)}>
-              {cat.label.toUpperCase()}
-            </Tab>
-          ))}
+          <Tab active={tab === "ALL"} onClick={() => setTab("ALL")}>
+            All <Count n={DEVICES.length} on={tab === "ALL"} />
+          </Tab>
+          {CATEGORIES.map(cat => {
+            const n = DEVICES.filter(d => d.cat === cat.key).length;
+            return (
+              <Tab key={cat.key} active={tab === cat.key} onClick={() => setTab(cat.key)}>
+                {cat.label} <Count n={n} on={tab === cat.key} />
+              </Tab>
+            );
+          })}
         </div>
       </div>
 
@@ -514,7 +529,6 @@ function QuickSearch({ onPick, current }) {
 export default function App() {
   const [device, setDevice] = useState(null);
   const [sel, setSel] = useState({});           // slotKey -> pn | [{pn,qty}]
-  const [placement, setPlacement] = useState("indoor");
   const region = REGION;
   const [project, setProject] = useState("");
   const [modal, setModal] = useState(null);      // "device" | slotKey | null
@@ -526,7 +540,6 @@ export default function App() {
   const pickDevice = (d) => {
     setDevice(d);
     setSel({});
-    setPlacement(defaultPlacement(d));
     setModal(null);
   };
   const reset = () => { setDevice(null); setSel({}); setModal(null); };
@@ -583,7 +596,7 @@ export default function App() {
     });
   };
 
-  const exportMeta = { device, rows: bom, placement, region, projectLabel: project };
+  const exportMeta = { device, rows: bom, region, projectLabel: project };
 
   const doPdf = useCallback(async () => {
     setBusy(true);
@@ -670,32 +683,6 @@ export default function App() {
                 <SlotCard slot={slot} picked={sel[slot.key]} onOpen={() => setModal(slot.key)} />
               </React.Fragment>
             ))}
-
-            {/* Placement */}
-            {device && (
-              <>
-                <Connector />
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: C.faint, textTransform: "uppercase",
-                                letterSpacing: 0.4, marginBottom: 8, height: 14 }}>Placement</div>
-                  <div style={{ width: 160, minHeight: 150, background: "#fff", border: `1px solid ${C.border}`,
-                                borderRadius: 12, padding: 14, display: "flex", flexDirection: "column",
-                                alignItems: "center", justifyContent: "center", gap: 10 }}>
-                    <Icon name="placement" size={48} />
-                    <div style={{ display: "flex", flexDirection: "column", gap: 5, width: "100%" }}>
-                      {["indoor", "outdoor", "pole"].map(p => (
-                        <button key={p} onClick={() => setPlacement(p)}
-                                style={{ padding: "5px 8px", borderRadius: 7,
-                                         border: `1.5px solid ${placement === p ? C.amber : C.border}`,
-                                         background: placement === p ? C.amberBg : "#fff",
-                                         color: C.ink, fontSize: 12, fontWeight: 600, cursor: "pointer",
-                                         textTransform: "capitalize", fontFamily: font }}>{p}</button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
         </div>
 
