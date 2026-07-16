@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
-  DEVICES, CATEGORIES, buildSlots, priceOf, fmtUsd, isVerified,
+  DEVICES, CATEGORIES, buildSlots, priceOf, fmtUsd,
 } from "./catalog.js";
 import Icon from "./Icon.jsx";
 import { exportBomPdf, exportBomExcel, copyBom } from "./exports.js";
@@ -267,7 +267,6 @@ function AccessoryModal({ slot, current, onApply, onClose }) {
 function DeviceDetail({ device, onClose, onChange }) {
   if (!device) return null;
   const price = priceOf(device.pn);
-  const verified = isVerified(device);
   const cat = (CATEGORIES.find(c => c.key === device.cat) || {}).label;
 
   return (
@@ -304,10 +303,6 @@ function DeviceDetail({ device, onClose, onChange }) {
             <Row k="Part number" v={<code style={{ color: C.navy2 }}>{device.pn}</code>} />
             <Row k="List price" v={fmtUsd(price)} />
             <Row k="Region" v={REGION} />
-            <Row k="Compatibility data"
-                 v={verified
-                   ? <span style={{ color: C.green, fontWeight: 600 }}>From the Access quote tool</span>
-                   : <span style={{ color: C.orange, fontWeight: 600 }}>Inferred — verify before quoting</span>} />
           </tbody>
         </table>
       </div>
@@ -685,17 +680,6 @@ export default function App() {
             ))}
           </div>
         </div>
-
-        {/* Provenance banner: say plainly where this device's rules came from. */}
-        {device && !isVerified(device) && (
-          <div style={{ marginTop: 12, padding: "10px 14px", background: C.amberBg,
-                        border: `1px solid ${C.amber}`, borderRadius: 10, fontSize: 12.5,
-                        color: C.ink, lineHeight: 1.5 }}>
-            <strong>{device.model}</strong> isn’t in the Access quote tool’s data, so the options
-            below are inferred from the price list rather than taken from Actelis’ compatibility
-            rules. Verify power, optics and cabling before quoting.
-          </div>
-        )}
 
         {/* Empty state hint */}
         {!device && (
