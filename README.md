@@ -117,3 +117,65 @@ quote differently.
 their options fall back to inference from the price list. The UI flags those
 devices explicitly. As with the Access tool itself, software and specialised
 accessories (CWDM, external powering) still need to be configured manually.
+
+## Product photos
+
+Photos are **convention-based** — there is nothing to edit in the catalog. Drop a
+file into `public/img/` named after the part number:
+
+```
+public/img/501RG0046.png     → shows on the ML624   (by part number)
+public/img/ML624.png         → also works           (by model)
+public/img/506R61191.png     → the DIN PoE PSU
+```
+
+Part number is tried first, then model, then the SVG silhouette. Existing
+artwork named by model needs no renaming.
+
+Any part without a file keeps its on-brand SVG silhouette, so the tool always
+looks finished and you can add photos gradually. `image-checklist.csv` lists all
+102 parts with their exact filenames, sorted by priority.
+
+### Batch converting
+
+`prep-images.ps1` converts a folder of mixed photos to spec in one pass:
+
+```powershell
+winget install ImageMagick.ImageMagick   # one time, then reopen PowerShell
+.\prep-images.ps1 -In "D:\path\to\raw-photos"
+```
+
+It trims dead space, fits each product inside a 10% padded box, centres it on a
+512x512 canvas, strips metadata and reports anything over 80 KB. Filenames carry
+through unchanged.
+
+### Format
+
+| | |
+|---|---|
+| Format | **PNG** (transparent background optional — see below) |
+| Size | **512 × 512 px, square** |
+| Subject | Product centred, ~10% padding, front-on or slight 3/4 |
+| Background | Transparent **or** plain white — both render correctly |
+| Colour | sRGB |
+| Weight | Aim under 80 KB each; run through TinyPNG |
+| Filename | `<PART-NUMBER>.png` **or** `<MODEL>.png` — e.g. `501RG0046.png` or `ML624.png` |
+
+**Why 512 square:** the largest on-screen render is 58 px, but the layout is
+square and displays run at 2–3× device pixel ratio, so 512 covers retina with
+headroom for future larger renders. Bigger than that is wasted bytes.
+
+**Background:** photos render on a white tile, so a plain white studio backdrop
+looks identical to a cut-out. Don't spend time on background removal — and be
+wary of automated white-knockout, which punches holes in white labels, text and
+LEDs on the product itself.
+
+**Why square:** every render is a square box with `object-fit: contain`. A wide
+photo letterboxes and looks small next to square ones. Pad to square at export.
+
+### Priority
+
+Do the **39 devices** first (priority 1) — they render largest, at 58 px on the
+device card. Then the 13 power and mounting parts. The 37 SFPs render at 38 px
+and mostly look alike; a single generic SFP photo reused across all of them is a
+reasonable shortcut, and the silhouettes are honestly fine there.
