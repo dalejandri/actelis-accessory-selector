@@ -102,10 +102,11 @@ from Access to `.xlsx` and re-run `gen_ari.py` against it.
 ### Verifying
 
 ```bash
-node verify-rules.mjs
+npm test          # compatibility rules, prices, datasheets, catalog completeness
+npm run test:ui   # drives the real UI in jsdom (needs: npm install --no-save jsdom)
 ```
 
-Asserts the engine still reproduces the wizard's behaviour (SFP classes, pair
+`npm test` asserts the engine still reproduces the wizard's behaviour (SFP classes, pair
 rules, PSU pools, craft cables, mounting). Run it after regenerating `ari.js` or
 touching the engine. A failure means the web tool and the Access tool would
 quote differently.

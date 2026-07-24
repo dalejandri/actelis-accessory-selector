@@ -183,14 +183,17 @@ function AccessoryModal({ slot, current, onApply, onClose }) {
       if (n[pn]) delete n[pn]; else n[pn] = 1;
       return n;
     });
-  // The wizard caps SFP quantity at the unit's actual cage count; slot.maxQty
-  // carries that from AutoRepeaterInfo's "SFP Qty/Mode" column.
-  const cap = slot.maxQty || 999;
+  // slot.maxQty is the unit's actual cage count, from AutoRepeaterInfo's
+  // "SFP Qty/Mode" column. It's advisory rather than a hard limit: ordering
+  // spares beyond the port count is legitimate, and the BOM's quantity field is
+  // free-entry, so clamping here would silently undo an edit made there. The
+  // count below turns amber instead.
+  const cap = slot.maxQty || 0;
   const used = Object.entries(multi).reduce((s, [, q]) => s + q, 0);
-  const over = slot.maxQty ? used > cap : false;
+  const over = cap ? used > cap : false;
 
   const setQty = (pn, v) =>
-    setMulti(m => ({ ...m, [pn]: Math.max(1, Math.min(cap, v | 0)) }));
+    setMulti(m => ({ ...m, [pn]: Math.max(1, Math.min(9999, v | 0)) }));
 
   const apply = () => {
     if (slot.multi) onApply(Object.entries(multi).map(([pn, qty]) => ({ pn, qty })));
@@ -229,7 +232,7 @@ function AccessoryModal({ slot, current, onApply, onClose }) {
               </div>
               <DatasheetLink href={o.datasheet} small />
               {slot.multi && on && (
-                <input type="number" min={1} max={cap} value={multi[o.pn]}
+                <input type="number" min={1} value={multi[o.pn]}
                        onClick={e => e.stopPropagation()}
                        onChange={e => setQty(o.pn, +e.target.value)}
                        style={{ width: 52, marginLeft: 10, padding: "5px 6px", border: `1px solid ${C.border}`,
@@ -325,6 +328,34 @@ const Row = ({ k, v }) => (
     <td style={{ padding: "9px 0", color: C.ink, fontWeight: 600 }}>{v}</td>
   </tr>
 );
+
+// An editable quantity cell. Keeps a local draft while typing so the field can
+// be cleared and retyped without snapping back to 1 on every keystroke; the
+// value is committed on blur or Enter, and a blank or invalid entry reverts.
+function QtyInput({ value, onCommit }) {
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => { setDraft(String(value)); }, [value]);
+
+  const commit = () => {
+    const n = parseInt(draft, 10);
+    if (!Number.isFinite(n) || n < 1) { setDraft(String(value)); return; }
+    if (n !== value) onCommit(n);
+  };
+
+  return (
+    <input
+      type="number" min={1} value={draft}
+      onChange={e => setDraft(e.target.value)}
+      onBlur={commit}
+      onFocus={e => e.target.select()}
+      onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); }}
+      aria-label="Quantity"
+      style={{ width: 58, padding: "5px 4px", textAlign: "center", fontSize: 13.5,
+               color: C.ink, fontFamily: font, border: `1px solid ${C.border}`,
+               borderRadius: 6, background: "#fff" }}
+    />
+  );
+}
 
 // ═════════════════════════════════════════════════════════════════════════════
 //  SLOT CARD (a column in the flow)
@@ -524,6 +555,12 @@ function QuickSearch({ onPick, current }) {
 export default function App() {
   const [device, setDevice] = useState(null);
   const [sel, setSel] = useState({});           // slotKey -> pn | [{pn,qty}]
+  // Quantities are editable directly in the BOM. Multi-select rows keep their
+  // qty inside `sel` so the picker and the BOM never disagree; the device row
+  // and single-select rows need their own store, since those selections are
+  // just a part number.
+  const [deviceQty, setDeviceQty] = useState(1);
+  const [singleQty, setSingleQty] = useState({});   // slotKey -> qty
   const region = REGION;
   const [project, setProject] = useState("");
   const [modal, setModal] = useState(null);      // "device" | slotKey | null
@@ -535,13 +572,36 @@ export default function App() {
   const pickDevice = (d) => {
     setDevice(d);
     setSel({});
+    setDeviceQty(1);
+    setSingleQty({});
     setModal(null);
   };
-  const reset = () => { setDevice(null); setSel({}); setModal(null); };
+  const reset = () => {
+    setDevice(null); setSel({}); setDeviceQty(1); setSingleQty({}); setModal(null);
+  };
 
   const applySlot = (slotKey, value) => {
     setSel(s => ({ ...s, [slotKey]: value }));
+    // A fresh pick starts at one; the old row's quantity shouldn't carry over
+    // onto a different part.
+    setSingleQty(q => ({ ...q, [slotKey]: 1 }));
     setModal(null);
+  };
+
+  // Set the quantity of one BOM line, routing back to whichever store owns it.
+  const setRowQty = (row, qty) => {
+    const n = Math.max(1, Math.min(9999, Math.round(qty) || 1));
+    if (row.slotKey === "device") { setDeviceQty(n); return; }
+    const slot = slots.find(sl => sl.key === row.slotKey);
+    if (!slot) return;
+    if (slot.multi) {
+      setSel(s => ({
+        ...s,
+        [row.slotKey]: (s[row.slotKey] || []).map(x => x.pn === row.pn ? { ...x, qty: n } : x),
+      }));
+    } else {
+      setSingleQty(q => ({ ...q, [row.slotKey]: n }));
+    }
   };
 
   // ── Build the Bill of Materials rows ──────────────────────────────────────
@@ -553,7 +613,7 @@ export default function App() {
                groupLabel, qty, slotKey, icon: o.icon,
                unitPrice: unit, lineTotal: unit == null ? null : unit * qty };
     };
-    const rows = [row(device, "Device", 1, "device")];
+    const rows = [row(device, "Device", deviceQty, "device")];
     for (const slot of slots) {
       const picked = sel[slot.key];
       if (!picked) continue;
@@ -564,11 +624,11 @@ export default function App() {
         }
       } else {
         const o = slot.options.find(x => x.pn === picked);
-        if (o) rows.push(row(o, slot.label, 1, slot.key));
+        if (o) rows.push(row(o, slot.label, singleQty[slot.key] || 1, slot.key));
       }
     }
     return rows;
-  }, [device, slots, sel]);
+  }, [device, slots, sel, deviceQty, singleQty]);
 
   // Total covers priced lines only; unpriced lines are reported separately so
   // the number is never quietly understated.
@@ -717,7 +777,9 @@ export default function App() {
                         </div>
                       </td>
                       <td style={{ padding: "10px 6px", color: C.muted }}>{r.groupLabel}</td>
-                      <td style={{ padding: "10px 6px", textAlign: "center", color: C.ink }}>{r.qty}</td>
+                      <td style={{ padding: "10px 6px", textAlign: "center" }}>
+                        <QtyInput value={r.qty} onCommit={n => setRowQty(r, n)} />
+                      </td>
                       <td style={{ padding: "10px 6px" }}><code style={{ color: C.navy2 }}>{r.pn}</code></td>
                       <td style={{ padding: "10px 6px", textAlign: "right",
                                    color: r.unitPrice == null ? C.faint : C.ink }}>
